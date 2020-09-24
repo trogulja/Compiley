@@ -1,0 +1,104 @@
+{
+  "name": "compiley",
+  "productName": "Compiley",
+  "version": "2.0.0",
+  "description": "Compile data from multiple sources to produce work report!",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trogulja/Compiley.git"
+  },
+  "main": ".webpack/main",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "sqlite": "electron-rebuild -f -w better-sqlite3",
+    "sqlite-reset": "yarn add better-sqlite3",
+    "lint": "echo \"No linting configured\""
+  },
+  "keywords": [],
+  "author": {
+    "name": "Tibor Rogulja",
+    "email": "tibor.rogulja@tiskarazagreb.hr"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "./src/img/lamp.ico"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "foldermonitor"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ],
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "mainConfig": "./webpack.main.config.js",
+            "renderer": {
+              "config": "./webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "html": "./src/index.html",
+                  "js": "./src/renderer.js",
+                  "name": "main_window"
+                }
+              ]
+            }
+          }
+        ]
+      ]
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.1",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/polyfill": "^7.10.4",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/runtime-corejs3": "^7.11.2",
+    "@electron-forge/cli": "6.0.0-beta.52",
+    "@electron-forge/maker-deb": "6.0.0-beta.52",
+    "@electron-forge/maker-rpm": "6.0.0-beta.52",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.52",
+    "@electron-forge/maker-zip": "6.0.0-beta.52",
+    "@electron-forge/plugin-webpack": "6.0.0-beta.52",
+    "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "babel-loader": "^8.1.0",
+    "css-loader": "^3.0.0",
+    "dotenv": "^8.2.0",
+    "electron": "9.1.1",
+    "electron-rebuild": "^1.11.0",
+    "node-loader": "^0.6.0",
+    "style-loader": "^0.23.1",
+    "url-loader": "^4.1.0",
+    "webpack": "^4.44.1"
+  },
+  "dependencies": {
+    "axios": "^0.20.0",
+    "better-sqlite3": "^7.1.1",
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-window-state": "^5.0.3",
+    "lodash": "^4.17.20",
+    "update-electron-app": "^1.5.0"
+  }
+}
