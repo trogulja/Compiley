@@ -12994,23 +12994,32 @@ try {
 "use strict";
 
 const os = __webpack_require__(/*! os */ "os");
+const tty = __webpack_require__(/*! tty */ "tty");
 const hasFlag = __webpack_require__(/*! has-flag */ "./node_modules/has-flag/index.js");
 
-const env = process.env;
+const {env} = process;
 
 let forceColor;
 if (hasFlag('no-color') ||
 	hasFlag('no-colors') ||
-	hasFlag('color=false')) {
-	forceColor = false;
+	hasFlag('color=false') ||
+	hasFlag('color=never')) {
+	forceColor = 0;
 } else if (hasFlag('color') ||
 	hasFlag('colors') ||
 	hasFlag('color=true') ||
 	hasFlag('color=always')) {
-	forceColor = true;
+	forceColor = 1;
 }
+
 if ('FORCE_COLOR' in env) {
-	forceColor = env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0;
+	if (env.FORCE_COLOR === 'true') {
+		forceColor = 1;
+	} else if (env.FORCE_COLOR === 'false') {
+		forceColor = 0;
+	} else {
+		forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
+	}
 }
 
 function translateLevel(level) {
@@ -13026,8 +13035,8 @@ function translateLevel(level) {
 	};
 }
 
-function supportsColor(stream) {
-	if (forceColor === false) {
+function supportsColor(haveStream, streamIsTTY) {
+	if (forceColor === 0) {
 		return 0;
 	}
 
@@ -13041,22 +13050,21 @@ function supportsColor(stream) {
 		return 2;
 	}
 
-	if (stream && !stream.isTTY && forceColor !== true) {
+	if (haveStream && !streamIsTTY && forceColor === undefined) {
 		return 0;
 	}
 
-	const min = forceColor ? 1 : 0;
+	const min = forceColor || 0;
+
+	if (env.TERM === 'dumb') {
+		return min;
+	}
 
 	if (process.platform === 'win32') {
-		// Node.js 7.5.0 is the first version of Node.js to include a patch to
-		// libuv that enables 256 color output on Windows. Anything earlier and it
-		// won't work. However, here we target Node.js 8 at minimum as it is an LTS
-		// release, and Node.js 7 is not. Windows 10 build 10586 is the first Windows
-		// release that supports 256 colors. Windows 10 build 14931 is the first release
-		// that supports 16m/TrueColor.
+		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
+		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
 		const osRelease = os.release().split('.');
 		if (
-			Number(process.versions.node.split('.')[0]) >= 8 &&
 			Number(osRelease[0]) >= 10 &&
 			Number(osRelease[2]) >= 10586
 		) {
@@ -13067,7 +13075,7 @@ function supportsColor(stream) {
 	}
 
 	if ('CI' in env) {
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
 			return 1;
 		}
 
@@ -13106,22 +13114,18 @@ function supportsColor(stream) {
 		return 1;
 	}
 
-	if (env.TERM === 'dumb') {
-		return min;
-	}
-
 	return min;
 }
 
 function getSupportLevel(stream) {
-	const level = supportsColor(stream);
+	const level = supportsColor(stream, stream && stream.isTTY);
 	return translateLevel(level);
 }
 
 module.exports = {
 	supportsColor: getSupportLevel,
-	stdout: getSupportLevel(process.stdout),
-	stderr: getSupportLevel(process.stderr)
+	stdout: translateLevel(supportsColor(true, tty.isatty(1))),
+	stderr: translateLevel(supportsColor(true, tty.isatty(2)))
 };
 
 
@@ -13303,7 +13307,7 @@ module.exports = JSON.parse("{\"name\":\"update-electron-app\",\"version\":\"1.5
 /*! exports provided: name, productName, version, description, repository, main, scripts, keywords, author, license, config, devDependencies, dependencies, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"name\":\"compiley\",\"productName\":\"Compiley\",\"version\":\"2.0.0\",\"description\":\"Compile data from multiple sources to produce work report!\",\"repository\":{\"type\":\"git\",\"url\":\"https://github.com/trogulja/Compiley.git\"},\"main\":\".webpack/main\",\"scripts\":{\"start\":\"electron-forge start\",\"package\":\"electron-forge package\",\"make\":\"electron-forge make\",\"publish\":\"electron-forge publish\",\"sqlite\":\"electron-rebuild -f -w better-sqlite3\",\"sqlite-reset\":\"yarn add better-sqlite3\",\"lint\":\"echo \\\"No linting configured\\\"\"},\"keywords\":[],\"author\":{\"name\":\"Tibor Rogulja\",\"email\":\"tibor.rogulja@tiskarazagreb.hr\"},\"license\":\"MIT\",\"config\":{\"forge\":{\"packagerConfig\":{\"icon\":\"./src/img/lamp.ico\"},\"makers\":[{\"name\":\"@electron-forge/maker-squirrel\",\"config\":{\"name\":\"foldermonitor\"}},{\"name\":\"@electron-forge/maker-zip\",\"platforms\":[\"darwin\"]},{\"name\":\"@electron-forge/maker-deb\",\"config\":{}},{\"name\":\"@electron-forge/maker-rpm\",\"config\":{}}],\"plugins\":[[\"@electron-forge/plugin-webpack\",{\"mainConfig\":\"./webpack.main.config.js\",\"renderer\":{\"config\":\"./webpack.renderer.config.js\",\"entryPoints\":[{\"html\":\"./src/index.html\",\"js\":\"./src/renderer.js\",\"name\":\"main_window\"}]}}]]}},\"devDependencies\":{\"@babel/core\":\"^7.11.1\",\"@babel/plugin-proposal-class-properties\":\"^7.10.4\",\"@babel/polyfill\":\"^7.10.4\",\"@babel/preset-env\":\"^7.11.0\",\"@babel/runtime-corejs3\":\"^7.11.2\",\"@electron-forge/cli\":\"6.0.0-beta.53\",\"@electron-forge/maker-deb\":\"6.0.0-beta.53\",\"@electron-forge/maker-rpm\":\"6.0.0-beta.53\",\"@electron-forge/maker-squirrel\":\"6.0.0-beta.53\",\"@electron-forge/maker-zip\":\"6.0.0-beta.53\",\"@electron-forge/plugin-webpack\":\"6.0.0-beta.53\",\"@marshallofsound/webpack-asset-relocator-loader\":\"^0.5.0\",\"babel-loader\":\"^8.1.0\",\"css-loader\":\"^4.3.0\",\"dotenv\":\"^8.2.0\",\"electron\":\"9.1.1\",\"electron-rebuild\":\"1.11.0\",\"node-loader\":\"^1.0.1\",\"style-loader\":\"^1.2.1\",\"url-loader\":\"^4.1.0\",\"webpack\":\"^4.44.1\"},\"dependencies\":{\"axios\":\"^0.20.0\",\"better-sqlite3\":\"^7.1.1\",\"chokidar\":\"3.4.2\",\"cron\":\"^1.8.2\",\"electron-squirrel-startup\":\"^1.0.0\",\"electron-window-state\":\"^5.0.3\",\"lodash\":\"^4.17.20\",\"node-cron\":\"^2.0.3\",\"node-powershell\":\"^4.0.0\",\"update-electron-app\":\"^1.5.0\"}}");
+module.exports = JSON.parse("{\"name\":\"compiley\",\"productName\":\"Compiley\",\"version\":\"2.0.0\",\"description\":\"Compile data from multiple sources to produce work report!\",\"repository\":{\"type\":\"git\",\"url\":\"https://github.com/trogulja/Compiley.git\"},\"main\":\".webpack/main\",\"scripts\":{\"start\":\"electron-forge start\",\"package\":\"electron-forge package\",\"make\":\"electron-forge make\",\"publish\":\"electron-forge publish\",\"sqlite\":\"electron-rebuild -f -w better-sqlite3\",\"sqlite-reset\":\"yarn add better-sqlite3\",\"lint\":\"echo \\\"No linting configured\\\"\"},\"keywords\":[],\"author\":{\"name\":\"Tibor Rogulja\",\"email\":\"tibor.rogulja@tiskarazagreb.hr\"},\"license\":\"MIT\",\"config\":{\"forge\":{\"packagerConfig\":{\"icon\":\"./src/img/lamp.ico\"},\"makers\":[{\"name\":\"@electron-forge/maker-squirrel\",\"config\":{\"name\":\"foldermonitor\"}},{\"name\":\"@electron-forge/maker-zip\",\"platforms\":[\"darwin\"]},{\"name\":\"@electron-forge/maker-deb\",\"config\":{}},{\"name\":\"@electron-forge/maker-rpm\",\"config\":{}}],\"plugins\":[[\"@electron-forge/plugin-webpack\",{\"mainConfig\":\"./webpack.main.config.js\",\"renderer\":{\"config\":\"./webpack.renderer.config.js\",\"entryPoints\":[{\"html\":\"./src/index.html\",\"js\":\"./src/renderer.js\",\"name\":\"main_window\"}]}}]]}},\"devDependencies\":{\"@babel/core\":\"^7.11.1\",\"@babel/plugin-proposal-class-properties\":\"^7.10.4\",\"@babel/polyfill\":\"^7.10.4\",\"@babel/preset-env\":\"^7.11.0\",\"@babel/runtime-corejs3\":\"^7.11.2\",\"@electron-forge/cli\":\"6.0.0-beta.52\",\"@electron-forge/maker-deb\":\"6.0.0-beta.52\",\"@electron-forge/maker-rpm\":\"6.0.0-beta.52\",\"@electron-forge/maker-squirrel\":\"6.0.0-beta.52\",\"@electron-forge/maker-zip\":\"6.0.0-beta.52\",\"@electron-forge/plugin-webpack\":\"6.0.0-beta.52\",\"@marshallofsound/webpack-asset-relocator-loader\":\"^0.5.0\",\"babel-loader\":\"^8.1.0\",\"css-loader\":\"^3.0.0\",\"dotenv\":\"^8.2.0\",\"electron\":\"9.1.1\",\"electron-rebuild\":\"^1.11.0\",\"node-loader\":\"^0.6.0\",\"style-loader\":\"^0.23.1\",\"url-loader\":\"^4.1.0\",\"webpack\":\"^4.44.1\"},\"dependencies\":{\"axios\":\"^0.20.0\",\"better-sqlite3\":\"^7.1.1\",\"electron-squirrel-startup\":\"^1.0.0\",\"electron-window-state\":\"^5.0.3\",\"lodash\":\"^4.17.20\",\"update-electron-app\":\"^1.5.0\"}}");
 
 /***/ }),
 

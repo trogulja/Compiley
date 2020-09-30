@@ -1,2 +1,46 @@
 # Compiley
 Compile data from multiple sources to produce work report
+
+# Todo list
+- [x] getMeta - get known tables
+  - [x] metaUsers(source): { source: id } mapping
+  - [x] metaJobs: { product: id } mapping
+  - [x] metaTypes: { name: id } mapping
+- [x] get list of files we need to process
+  - [ ] add file name checker - they need to be unique
+    - [ ] add first folder checker - needs to follow a pattern (to be defined)
+  - [x] get created, modified timestamp, set current timestamp
+  - [x] match filename with known source list
+    - [x] file created lower, modified higher - check & replace
+      - [ ] figure out some type of check for this
+    - [x] file created equal or higher, modified higher - replace
+    - [x] what to do if we have more than one same filename as source?
+      - [x] first folder within data (so, data/something) should be captured and added to name (data-18-01/file.xls)
+- [x] drop source from db if it's already known source (cascade drop for related entries)
+- [ ] parse file (parser defines source - metaUsers must contain a column for it)
+  - [ ] atomic jobs parsing (claro, dti, parte)
+    - [ ] check if known user (set John Doe for unkowns), get id
+    - [ ] check if known job (if not: add to db, update metaJobs), get id
+    - [ ] check if known type (if not: throw an error, should be defined upfront), get id
+    - [ ] check if known day (if not: add to db), get id
+    - [ ] if duration does not exist, set average value based on type, set duration_type to 1
+    - [ ] end of file:
+      - [ ] reduce jobsAtomic by day / job / source / type / user / duration exist
+      - [ ] ***!!!*** - figure a way to link jobsAtomic & jobs
+      - [ ] insert into jobs, get real id
+      - [ ] insert into jobsAtomic
+      - [ ] insert into metaSource
+  - [ ] non-atomic jobs parsing (worktime, easyjob, admin)
+    - [ ] check if known user (if not: throw an error, because it should be defined upfront), get id
+    - [ ] check if known job (if not: add to db, update metaJobs), get id
+    - [ ] check if known type (if not: throw an error, should be defined upfront), get id
+    - [ ] check if known day (if not: add to db), get id
+    - [ ] if duration does not exist, throw an error, because it should exist for this type
+    - [ ] end of file:
+      - [ ] insert into metaSource, get id
+      - [ ] insert into jobs
+- [ ] db housekeeping (at the batch end)
+  - [ ] for each new day added or updated
+    - [ ] sum_images
+  - [ ] for each jobs.d_type > 1
+  - [ ] for each jobsAtomic.d_type > 1
