@@ -104,6 +104,6 @@ dist
 .tern-port
 
 # Sqlite database files
-db/compiley.db
-db/compiley.db-shm
-db/compiley.db-wal
+# db/compiley.db
+# db/compiley.db-shm
+# db/compiley.db-wal
