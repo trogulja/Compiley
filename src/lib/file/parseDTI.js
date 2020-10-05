@@ -67,42 +67,42 @@ async function parseDTI(file, meta) {
       if (!ok) console.log(row);
     }
 
-    if (line.newStatusId == 1419) {
+    if (row.newStatusId == 1419) {
       // '3-Spremno'
       await jobsAtomic
         .insert({
           type: 'standard',
-          time: line.lastRefreshed,
-          date: generateDate(line.lastRefreshed),
-          hour: getHourInt(line.lastRefreshed),
-          desk: line.deskName,
+          time: row.lastRefreshed,
+          date: excelHelper.generateDate(row.lastRefreshed),
+          hour: excelHelper.getHourInt(row.lastRefreshed),
+          desk: row.deskName,
           source: source,
-          user: line.refreshedBy,
-          file: line.fileHeaderName,
+          user: row.refreshedBy,
+          file: row.fileHeaderName,
         })
         .catch((e) => console.log(e));
-    } else if (line.newStatusId == 1421) {
+    } else if (row.newStatusId == 1421) {
       // '3-Spremno Aut.'
       await db
         .insert({
           type: 'auto',
-          time: line.lastRefreshed,
-          date: generateDate(line.lastRefreshed),
-          hour: getHourInt(line.lastRefreshed),
-          desk: line.deskName,
+          time: row.lastRefreshed,
+          date: generateDate(row.lastRefreshed),
+          hour: getHourInt(row.lastRefreshed),
+          desk: row.deskName,
           source: source,
-          user: line.refreshedBy,
-          file: line.fileHeaderName,
+          user: row.refreshedBy,
+          file: row.fileHeaderName,
         })
         .catch((e) => console.log(e));
-    } else if (line.newStatusId == 1423) {
+    } else if (row.newStatusId == 1423) {
       // '3A-M4-Proces'
-      await m4status.insert({ time: line.changeDate, date: generateDate(line.lastRefreshed), hour: getHourInt(line.lastRefreshed), id: Number(line.id) }).catch((e) => console.log(e));
-      // m4status.push({ time: line.changeDate, date: generateDate(line.lastRefreshed), id: Number(line.id) });
-    } else if (line.newStatusId == 1420) {
+      await m4status.insert({ time: row.changeDate, date: generateDate(row.lastRefreshed), hour: getHourInt(row.lastRefreshed), id: Number(row.id) }).catch((e) => console.log(e));
+      // m4status.push({ time: row.changeDate, date: generateDate(row.lastRefreshed), id: Number(row.id) });
+    } else if (row.newStatusId == 1420) {
       // '3-Spremno (obrez)'
       let startTime = await m4status
-        .find({ id: Number(line.id) })
+        .find({ id: Number(row.id) })
         .sort({ time: -1 })
         .exec()
         .then(async (doc) => {
@@ -117,22 +117,22 @@ async function parseDTI(file, meta) {
         .catch((e) => console.log(e));
 
       let type = 'cutout';
-      let duration = startTime ? line.changeDate - startTime : 0; // If we don't have duration, set 0
+      let duration = startTime ? row.changeDate - startTime : 0; // If we don't have duration, set 0
       duration = Math.round(duration / 1000); // Convert duration from ms to s
       if (duration > 8 * 60 * 60) duration = 8 * 60 * 60; // Limit duration to 8h!
-      if (line.oldStatusId != 1423) duration = -1; // TIBOR - ukoliko prethodni status nije M4-Process, prebaci u standardnu sliku!
+      if (row.oldStatusId != 1423) duration = -1; // TIBOR - ukoliko prethodni status nije M4-Process, prebaci u standardnu sliku!
       if (duration <= 0) type = 'Standard'; // If there is no time for cutout, we count that as Standard image!
       if (duration <= 0) duration = undefined; // If there is no time for cutout, we count that as Standard image!
       await dtidb
         .insert({
           type: type,
-          time: line.lastRefreshed,
-          date: generateDate(line.lastRefreshed),
-          hour: getHourInt(line.lastRefreshed),
-          desk: line.deskName,
+          time: row.lastRefreshed,
+          date: generateDate(row.lastRefreshed),
+          hour: getHourInt(row.lastRefreshed),
+          desk: row.deskName,
           source: source,
-          user: line.refreshedBy,
-          file: line.fileHeaderName,
+          user: row.refreshedBy,
+          file: row.fileHeaderName,
           duration: duration,
         })
         .catch((e) => console.log(e));

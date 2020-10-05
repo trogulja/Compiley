@@ -17,7 +17,8 @@ const path = require('path');
 
 async function gatherAll() {
   const meta = getMeta('dti');
-  // console.log(meta);
+  console.log(meta.metaTypes);
+  return true;
   const files = await getFiles(path.join(__dirname, '..', 'data'), meta.metaSource.validGroup);
 
   let currentFile = 0;
