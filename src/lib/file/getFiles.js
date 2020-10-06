@@ -8,6 +8,21 @@ const fileGroup = {
   admin: /Neki regex za admin/,
 };
 
+function trimFile(file) {
+  return {
+    name: file.name,
+    size: file.size,
+    t_created: file.t_created,
+    t_modified: file.t_modified,
+    t_parsed: file.t_parsed,
+  };
+}
+
+function addOutput(output, type, group, object) {
+  if (!output[type][group]) output[type][group] = [];
+  output[type][group].push(object);
+}
+
 async function getFiles(dir, validGroup, originDir = dir) {
   if (!validGroup) return false;
   let files;
@@ -34,7 +49,15 @@ async function getFiles(dir, validGroup, originDir = dir) {
 
         if (isValid) {
           const uniqueName = filePath.replace(originDir, '.');
-          return { path: filePath, group: isValid, name: uniqueName, size: stats.size, t_created: stats.birthtimeMs, t_modified: stats.birthtimeMs, t_parsed: new Date().getTime() };
+          return {
+            path: filePath,
+            group: isValid,
+            name: uniqueName,
+            size: stats.size,
+            t_created: stats.birthtimeMs,
+            t_modified: stats.birthtimeMs,
+            t_parsed: new Date().getTime(),
+          };
         } else {
           return false;
         }
@@ -44,4 +67,37 @@ async function getFiles(dir, validGroup, originDir = dir) {
   return files.reduce((all, folderContents) => all.concat(folderContents), []).filter((el) => el);
 }
 
-module.exports = getFiles;
+async function main(dir, meta) {
+  const time = new Date().getTime();
+  dir = path.join(__dirname, '..', '..', '..', '..', 'Compiley-old');
+
+  const results = await getFiles(dir, meta.validGroup);
+  console.log(`Reading dirs done in ${new Date().getTime() - time}ms`);
+  const time2 = new Date().getTime();
+  const output = { all: {}, new: {} };
+
+  for (const r of results) {
+    const id = meta.source.rev[r.name];
+    if (!id) {
+      // TODO - report this is a new file
+      addOutput(output, 'new', r.group, trimFile(r))
+    } else {
+      if (
+        meta.source.all[id].size >= r.size &&
+        meta.source.all[id].t_created >= r.t_created &&
+        meta.source.all[id].t_modified >= r.t_modified
+      ) {
+        // TODO - report we have seen this file, but older version
+        output.all[r.group].push(trimFile(r));
+      } else {
+        // TODO - report this is a new file version
+        output.new[r.group].push(trimFile(r));
+      }
+    }
+  }
+
+  console.log(`Sorting results done in ${new Date().getTime() - time2}ms`);
+  return output;
+}
+
+module.exports = main;

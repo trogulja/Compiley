@@ -3,8 +3,8 @@
 // #region SetUp
 const XLSX = require('xlsx');
 const Datastore = require('nedb-promises');
-const jobsAtomic = new Datastore();
-const excelHelper = require('../util/excelHelper');
+const eh = require('../util/excelHelper');
+const db = require('../db/update');
 // #endregion
 
 async function parseDTI(file, meta) {
@@ -19,16 +19,36 @@ async function parseDTI(file, meta) {
    *   t_parsed: 1601313389239
    * }
    */
-  const wb = XLSX.readFile(file.path);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const sheet = XLSX.utils.sheet_to_json(ws);
+  // Check for existing source, drop it from db if found!
+  const source = db.handleSource(file);
+
+  let wb = XLSX.readFile(file.path);
+  let ws = wb.Sheets[wb.SheetNames[0]];
+  let sheet = XLSX.utils.sheet_to_json(ws);
+  let jobsAtomic = new Datastore();
 
   for (const row of sheet) {
-    row.changeDate = excelHelper.date2ms(row.changeDate);
-    row.lastRefreshed = excelHelper.date2ms(row.lastRefreshed);
+    /**
+     * id               - unique id of this file object
+     * fileHeaderName   - filename, without extension
+     * lastRefreshed    - xls date, file refreshed
+     * oldStatusId      - before status change id
+     * statusName       - before status change name
+     * newStatusId      - new status id
+     * statusName_1     - new status name
+     * changeDate       - xls date, status change
+     * deskName         - desk name
+     * refreshedBy      - user name
+     */
+    row.changeDate = eh.date2ms(row.changeDate);
+    row.lastRefreshed = eh.date2ms(row.lastRefreshed);
     if (!row.fileHeaderName) row.fileHeaderName = 'nema imena';
-    row.fileHeaderName = excelHelper.sanitizeString(row.fileHeaderName);
-    row.refreshedBy = meta.metaUsers.dti[row.refreshedBy] ? meta.metaUsers.dti[row.refreshedBy] : 'xx_' + row.refreshedBy;
+    row.fileHeaderName = eh.sanitizeString(row.fileHeaderName);
+    row.refreshedBy = meta.metaUsers.dti[row.refreshedBy]
+      ? meta.metaUsers.dti[row.refreshedBy]
+      : 'xx_' + row.refreshedBy;
+
+    // Check for existing deskName, add new one if not found!
 
     let testing = true;
     if (testing) {
@@ -71,11 +91,16 @@ async function parseDTI(file, meta) {
       // '3-Spremno'
       await jobsAtomic
         .insert({
-          type: 'standard',
+          type: meta.metaTypes['standard'],
           time: row.lastRefreshed,
-          date: excelHelper.generateDate(row.lastRefreshed),
-          hour: excelHelper.getHourInt(row.lastRefreshed),
-          desk: row.deskName,
+          day:
+            meta.days[eh.breakDate(row.lastRefreshed).year][eh.breakDate(row.lastRefreshed).month][
+              eh.breakDate(row.lastRefreshed).day
+            ] || null,
+          hour: eh.breakDate(row.lastRefreshed).hour,
+          minute: eh.breakDate(row.lastRefreshed).minute,
+          second: eh.breakDate(row.lastRefreshed).second,
+          desk: db.handleProduct(row.deskName),
           source: source,
           user: row.refreshedBy,
           file: row.fileHeaderName,
@@ -85,10 +110,15 @@ async function parseDTI(file, meta) {
       // '3-Spremno Aut.'
       await db
         .insert({
-          type: 'auto',
+          type: meta.metaTypes['auto'],
           time: row.lastRefreshed,
-          date: generateDate(row.lastRefreshed),
-          hour: getHourInt(row.lastRefreshed),
+          day:
+            meta.days[eh.breakDate(row.lastRefreshed).year][eh.breakDate(row.lastRefreshed).month][
+              eh.breakDate(row.lastRefreshed).day
+            ] || null,
+          hour: eh.breakDate(row.lastRefreshed).hour,
+          minute: eh.breakDate(row.lastRefreshed).minute,
+          second: eh.breakDate(row.lastRefreshed).second,
           desk: row.deskName,
           source: source,
           user: row.refreshedBy,
@@ -97,7 +127,14 @@ async function parseDTI(file, meta) {
         .catch((e) => console.log(e));
     } else if (row.newStatusId == 1423) {
       // '3A-M4-Proces'
-      await m4status.insert({ time: row.changeDate, date: generateDate(row.lastRefreshed), hour: getHourInt(row.lastRefreshed), id: Number(row.id) }).catch((e) => console.log(e));
+      await m4status
+        .insert({
+          time: row.changeDate,
+          date: generateDate(row.lastRefreshed),
+          hour: getHourInt(row.lastRefreshed),
+          id: Number(row.id),
+        })
+        .catch((e) => console.log(e));
       // m4status.push({ time: row.changeDate, date: generateDate(row.lastRefreshed), id: Number(row.id) });
     } else if (row.newStatusId == 1420) {
       // '3-Spremno (obrez)'
@@ -138,6 +175,15 @@ async function parseDTI(file, meta) {
         .catch((e) => console.log(e));
     }
   }
+
+  // save all stuff into db
+
+  // remove all and free up memory
+  await jobsAtomic.remove({}, { multi: true });
+  jobsAtomic = null;
+  sheet = null;
+  ws = null;
+  wb = null;
 }
 
 module.exports = parseDTI;

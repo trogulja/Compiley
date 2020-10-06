@@ -100,6 +100,7 @@ function getMeta() {
     result.forEach((el) => {
       rev[el.name] = el.id;
       all[el.id] = {
+        group: el.group,
         name: el.name,
         size: el.size,
         t_created: el.t_created,
@@ -107,7 +108,7 @@ function getMeta() {
         t_parsed: el.t_parsed,
       };
     });
-    return { rev, all, validGroup: valid };
+    return { rev, all };
   }
 
   function getMetaUsers() {
@@ -123,22 +124,22 @@ function getMeta() {
   }
 
   function getDays() {
-    const result = db.prepare('SELECT * FROM days').all()
+    const result = db.prepare('SELECT * FROM days').all();
     const output = {};
     for (const res in result) {
-      setWith(output, `[${res.year}][${res.month}][${res.day}]`, res.id, Object)
+      setWith(output, `[${res.year}][${res.month}][${res.day}]`, res.id, Object);
     }
     return output;
   }
 
-  const metaJobs = getFromDb('jobs');
-  const metaTypes = getFromDb('types');
-  const metaUsers = getMetaUsers();
-  const metaSource = getMetaSource();
+  const jobs = getFromDb('jobs');
+  const types = getFromDb('types');
+  const users = getMetaUsers();
+  const source = getMetaSource();
   const days = getDays();
 
   db.close();
-  return { metaUsers, metaJobs, metaTypes, metaSource, days };
+  return { users, jobs, types, source, days, validGroup: valid };
 }
 
 module.exports = getMeta;
