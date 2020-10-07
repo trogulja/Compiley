@@ -4,10 +4,10 @@
 const XLSX = require('xlsx');
 const Datastore = require('nedb-promises');
 const eh = require('../util/excelHelper');
-const db = require('../db/update');
+const tools = require('../db/tools');
 // #endregion
 
-async function parseDTI(file, meta) {
+async function parseDTI(file, meta, db) {
   /**
    * file == {
    *   name: '.\\test\\Slike 24_2018-01-01-09-05-13.xls',
@@ -18,12 +18,13 @@ async function parseDTI(file, meta) {
    * }
    */
   // Check for existing source, drop it from db if found!
-  const source = db.handleSource(file, 'dti', meta);
+  const source = tools.handleSource(file, 'dti', meta, db);
 
   let wb = XLSX.readFile(file.path);
   let ws = wb.Sheets[wb.SheetNames[0]];
   let sheet = XLSX.utils.sheet_to_json(ws);
   let jobsAtomic = new Datastore();
+  let m4status = new Datastore();
 
   for (const row of sheet) {
     /**
@@ -42,9 +43,7 @@ async function parseDTI(file, meta) {
     row.lastRefreshed = eh.date2ms(row.lastRefreshed);
     if (!row.fileHeaderName) row.fileHeaderName = 'nema imena';
     row.fileHeaderName = eh.sanitizeString(row.fileHeaderName);
-    row.refreshedBy = meta.metaUsers.dti[row.refreshedBy]
-      ? meta.metaUsers.dti[row.refreshedBy]
-      : 'xx_' + row.refreshedBy;
+    row.refreshedBy = meta.users.dti[row.refreshedBy] || 'xx_' + row.refreshedBy;
 
     // Check for existing deskName, add new one if not found!
 
@@ -90,13 +89,13 @@ async function parseDTI(file, meta) {
       // '3-Spremno'
       await jobsAtomic
         .insert({
-          type: meta.metaTypes['standard'],
+          type: meta.types['standard'],
           time: row.lastRefreshed,
-          day: meta.days[pDate.year][pDate.month][pDate.day] || null,
+          day: tools.handleDay(row.lastRefreshed, meta, db),
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          desk: db.handleProduct(row.deskName),
+          desk: tools.handleProduct(row.deskName, meta, db),
           source: source,
           user: row.refreshedBy,
           file: row.fileHeaderName,
@@ -104,15 +103,15 @@ async function parseDTI(file, meta) {
         .catch((e) => console.log(e));
     } else if (row.newStatusId == 1421) {
       // '3-Spremno Aut.'
-      await db
+      await jobsAtomic
         .insert({
-          type: meta.metaTypes['auto'],
+          type: meta.types['auto'],
           time: row.lastRefreshed,
-          day: meta.days[pDate.year][pDate.month][pDate.day] || null,
+          day: tools.handleDay(row.lastRefreshed, meta, db),
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          desk: row.deskName,
+          desk: tools.handleProduct(row.deskName, meta, db),
           source: source,
           user: row.refreshedBy,
           file: row.fileHeaderName,
@@ -123,15 +122,17 @@ async function parseDTI(file, meta) {
       await m4status
         .insert({
           time: row.changeDate,
-          date: generateDate(row.lastRefreshed),
-          hour: getHourInt(row.lastRefreshed),
+          day: tools.handleDay(row.lastRefreshed, meta, db),
+          hour: pDate.hour,
+          minute: pDate.minute,
+          second: pDate.second,
           id: Number(row.id),
         })
         .catch((e) => console.log(e));
       // m4status.push({ time: row.changeDate, date: generateDate(row.lastRefreshed), id: Number(row.id) });
     } else if (row.newStatusId == 1420) {
       // '3-Spremno (obrez)'
-      let startTime = await m4status
+      const startTime = await m4status
         .find({ id: Number(row.id) })
         .sort({ time: -1 })
         .exec()
@@ -151,15 +152,17 @@ async function parseDTI(file, meta) {
       duration = Math.round(duration / 1000); // Convert duration from ms to s
       if (duration > 8 * 60 * 60) duration = 8 * 60 * 60; // Limit duration to 8h!
       if (row.oldStatusId != 1423) duration = -1; // TIBOR - ukoliko prethodni status nije M4-Process, prebaci u standardnu sliku!
-      if (duration <= 0) type = 'Standard'; // If there is no time for cutout, we count that as Standard image!
+      if (duration <= 0) type = 'standard'; // If there is no time for cutout, we count that as Standard image!
       if (duration <= 0) duration = undefined; // If there is no time for cutout, we count that as Standard image!
-      await dtidb
+      await jobsAtomic
         .insert({
-          type: type,
+          type: meta.types[type],
           time: row.lastRefreshed,
-          date: generateDate(row.lastRefreshed),
-          hour: getHourInt(row.lastRefreshed),
-          desk: row.deskName,
+          date: tools.handleDay(row.lastRefreshed, meta, db),
+          hour: pDate.hour,
+          minute: pDate.minute,
+          second: pDate.second,
+          desk: tools.handleProduct(row.deskName, meta, db),
           source: source,
           user: row.refreshedBy,
           file: row.fileHeaderName,
@@ -170,13 +173,19 @@ async function parseDTI(file, meta) {
   }
 
   // save all stuff into db
+  const output = await jobsAtomic.find({}).sort({ time: 1 });
 
   // remove all and free up memory
   await jobsAtomic.remove({}, { multi: true });
+  await m4status.remove({}, { multi: true });
   jobsAtomic = null;
+  m4status = null;
   sheet = null;
   ws = null;
   wb = null;
+
+  console.log(output.length)
+  return output;
 }
 
 module.exports = parseDTI;

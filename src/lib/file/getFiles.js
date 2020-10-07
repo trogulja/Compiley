@@ -10,6 +10,7 @@ const fileGroup = {
 
 function trimFile(file) {
   return {
+    path: file.path,
     name: file.name,
     size: file.size,
     t_created: file.t_created,
@@ -88,10 +89,10 @@ async function main(dir, meta) {
         meta.source.all[id].t_modified >= r.t_modified
       ) {
         // TODO - report we have seen this file, but older version
-        output.all[r.group].push(trimFile(r));
+        addOutput(output, 'all', r.group, trimFile(r))
       } else {
         // TODO - report this is a new file version
-        output.new[r.group].push(trimFile(r));
+        addOutput(output, 'new', r.group, trimFile(r))
       }
     }
   }
