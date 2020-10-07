@@ -44,6 +44,7 @@ paths.db = path.join(paths.root, 'db');
 const db_file = path.join(paths.root, 'db', 'compiley.db');
 // Throw an error if we don't have a db!
 fs.accessSync(db_file, fs.constants.F_OK | fs.constants.W_OK);
+// if there is no db, we can init with default data
 
 paths.database = db_file;
 

@@ -10,8 +10,6 @@ const db = require('../db/update');
 async function parseDTI(file, meta) {
   /**
    * file == {
-   *   path: 'E:\\code\\Apps\\Compiley\\data\\test\\Slike 24_2018-01-01-09-05-13.xls',
-   *   group: 'dti',
    *   name: '.\\test\\Slike 24_2018-01-01-09-05-13.xls',
    *   size: 10752,
    *   t_created: 1601152576391.5225,
@@ -20,7 +18,7 @@ async function parseDTI(file, meta) {
    * }
    */
   // Check for existing source, drop it from db if found!
-  const source = db.handleSource(file);
+  const source = db.handleSource(file, 'dti', meta);
 
   let wb = XLSX.readFile(file.path);
   let ws = wb.Sheets[wb.SheetNames[0]];
@@ -87,19 +85,17 @@ async function parseDTI(file, meta) {
       if (!ok) console.log(row);
     }
 
+    const pDate = eh.breakDate(row.lastRefreshed);
     if (row.newStatusId == 1419) {
       // '3-Spremno'
       await jobsAtomic
         .insert({
           type: meta.metaTypes['standard'],
           time: row.lastRefreshed,
-          day:
-            meta.days[eh.breakDate(row.lastRefreshed).year][eh.breakDate(row.lastRefreshed).month][
-              eh.breakDate(row.lastRefreshed).day
-            ] || null,
-          hour: eh.breakDate(row.lastRefreshed).hour,
-          minute: eh.breakDate(row.lastRefreshed).minute,
-          second: eh.breakDate(row.lastRefreshed).second,
+          day: meta.days[pDate.year][pDate.month][pDate.day] || null,
+          hour: pDate.hour,
+          minute: pDate.minute,
+          second: pDate.second,
           desk: db.handleProduct(row.deskName),
           source: source,
           user: row.refreshedBy,
@@ -112,13 +108,10 @@ async function parseDTI(file, meta) {
         .insert({
           type: meta.metaTypes['auto'],
           time: row.lastRefreshed,
-          day:
-            meta.days[eh.breakDate(row.lastRefreshed).year][eh.breakDate(row.lastRefreshed).month][
-              eh.breakDate(row.lastRefreshed).day
-            ] || null,
-          hour: eh.breakDate(row.lastRefreshed).hour,
-          minute: eh.breakDate(row.lastRefreshed).minute,
-          second: eh.breakDate(row.lastRefreshed).second,
+          day: meta.days[pDate.year][pDate.month][pDate.day] || null,
+          hour: pDate.hour,
+          minute: pDate.minute,
+          second: pDate.second,
           desk: row.deskName,
           source: source,
           user: row.refreshedBy,

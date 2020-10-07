@@ -69,7 +69,7 @@ async function getFiles(dir, validGroup, originDir = dir) {
 
 async function main(dir, meta) {
   const time = new Date().getTime();
-  dir = path.join(__dirname, '..', '..', '..', '..', 'Compiley-old');
+  // dir = path.join(__dirname, '..', '..', '..', '..', 'Compiley-old'); // for manual test
 
   const results = await getFiles(dir, meta.validGroup);
   console.log(`Reading dirs done in ${new Date().getTime() - time}ms`);

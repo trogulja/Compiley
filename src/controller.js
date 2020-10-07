@@ -23,7 +23,7 @@ async function gatherAll() {
   const dataFolder = path.join(__dirname, '..', 'data');
   const files = await getFiles(dataFolder, meta);
 
-  // console.log(files);
+  // console.log(files.new.dti[0]);
   // return false;
 
   let currentFile = 0;
@@ -35,9 +35,9 @@ async function gatherAll() {
 
   for (const group in files.new) {
     for (const file of files.new[group]) {
-      // console.log(`Parsing ${file.name} of ${group}`);
+      console.log(`Parsing file ${file.name} of group ${group}`);
 
-      // if (group === 'dti') await parseDTI(file, meta);
+      if (group === 'dti') await parseDTI(file, meta);
       // if (file.group === 'easyjob') await
       // if (file.group === 'worktime')
       // if (file.group === 'parte')
