@@ -69,7 +69,7 @@ function getMeta(db) {
     const result = db.prepare('SELECT * FROM days').all();
     const output = {};
     for (const res in result) {
-      setWith(output, `[${res.year}][${res.month}][${res.day}]`, res.id, Object);
+      setWith(output, `[${result[res].year}][${result[res].month}][${result[res].day}]`, result[res].id, Object);
     }
     return output;
   }
