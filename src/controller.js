@@ -19,7 +19,9 @@ const path = require('path');
 async function gatherAll() {
   const db = database();
   const meta = getMeta(db);
+
   // console.log(meta);
+  // db.close();
   // return true;
 
   const dataFolder = path.join(__dirname, '..', 'data');

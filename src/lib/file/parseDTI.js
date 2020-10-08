@@ -5,6 +5,7 @@ const XLSX = require('xlsx');
 const Datastore = require('nedb-promises');
 const eh = require('../util/excelHelper');
 const tools = require('../db/tools');
+const { setWith, get } = require('lodash');
 // #endregion
 
 async function parseDTI(file, meta, db) {
@@ -43,7 +44,8 @@ async function parseDTI(file, meta, db) {
     row.lastRefreshed = eh.date2ms(row.lastRefreshed);
     if (!row.fileHeaderName) row.fileHeaderName = 'nema imena';
     row.fileHeaderName = eh.sanitizeString(row.fileHeaderName);
-    row.refreshedBy = meta.users.dti[row.refreshedBy] || 'xx_' + row.refreshedBy;
+    // row.refreshedBy = meta.users.dti[row.refreshedBy] || 'xx_' + row.refreshedBy;
+    row.refreshedBy = meta.users.dti[row.refreshedBy] || null;
 
     // Check for existing deskName, add new one if not found!
 
@@ -95,10 +97,11 @@ async function parseDTI(file, meta, db) {
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          desk: tools.handleProduct(row.deskName, meta, db),
+          product: tools.handleProduct(row.deskName, meta, db),
           source: source,
           user: row.refreshedBy,
           file: row.fileHeaderName,
+          duration: 0,
         })
         .catch((e) => console.log(e));
     } else if (row.newStatusId == 1421) {
@@ -111,10 +114,11 @@ async function parseDTI(file, meta, db) {
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          desk: tools.handleProduct(row.deskName, meta, db),
+          product: tools.handleProduct(row.deskName, meta, db),
           source: source,
           user: row.refreshedBy,
           file: row.fileHeaderName,
+          duration: 0,
         })
         .catch((e) => console.log(e));
     } else if (row.newStatusId == 1423) {
@@ -158,11 +162,11 @@ async function parseDTI(file, meta, db) {
         .insert({
           type: meta.types[type],
           time: row.lastRefreshed,
-          date: tools.handleDay(row.lastRefreshed, meta, db),
+          day: tools.handleDay(row.lastRefreshed, meta, db),
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          desk: tools.handleProduct(row.deskName, meta, db),
+          product: tools.handleProduct(row.deskName, meta, db),
           source: source,
           user: row.refreshedBy,
           file: row.fileHeaderName,
@@ -173,7 +177,7 @@ async function parseDTI(file, meta, db) {
   }
 
   // save all stuff into db
-  const output = await jobsAtomic.find({}).sort({ time: 1 });
+  const results = await jobsAtomic.find({}).sort({ time: 1 });
 
   // remove all and free up memory
   await jobsAtomic.remove({}, { multi: true });
@@ -184,8 +188,59 @@ async function parseDTI(file, meta, db) {
   ws = null;
   wb = null;
 
-  console.log(output.length)
-  return output;
+  // prepare db transactions
+  const tableJobs = {};
+  for (const res of results) {
+    /**
+     * type: meta.types[type],
+     * time: row.lastRefreshed,
+     * day: tools.handleDay(row.lastRefreshed, meta, db),
+     * hour: pDate.hour,
+     * minute: pDate.minute,
+     * second: pDate.second,
+     * product: tools.handleProduct(row.deskName, meta, db),
+     * source: source,
+     * user: row.refreshedBy,
+     * file: row.fileHeaderName,
+     * duration: duration,
+     */
+    // jobs: sum per source, day, product, type, user - set id
+    // atom: get id - keep hour, minute, second, duration, d_type
+    const id = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][id]`, res.id);
+    const amount = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][amount]`, 0) + 1;
+    const duration = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][duration]`, 0) + res.duration;
+
+    res.id = id;
+    setWith(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}]`, { id, amount, duration }, Object);
+  }
+
+  // Insert jobs into db
+  const tableJobsId = {};
+  for (const metaSource in tableJobs) {
+    for (const days in tableJobs[metaSource]) {
+      for (const metaJobs in tableJobs[metaSource][days]) {
+        for (const metaTypes in tableJobs[metaSource][days][metaJobs]) {
+          for (const metaUsers in tableJobs[metaSource][days][metaJobs][metaTypes]) {
+            const id = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].id;
+            const amount = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].amount;
+            const duration = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].duration;
+            const jobid = tools.insertNewJob({ days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration }, db);
+            tableJobsId[id] = jobid;
+          }
+        }
+      }
+    }
+  }
+
+  // Insert jobsAtomic into db
+  const transactionJobsAtomic = [];
+  for (const job of results) {
+    transactionJobsAtomic.push({ jobs: tableJobsId[job.id], hour: job.hour, minute: job.minute, second: job.second, duration: job.duration, d_type: job.d_type });
+  }
+  tools.insertTransactionJobsAtomic(transactionJobsAtomic, db);
+
+  // console.log(results);
+  return true;
 }
 
 module.exports = parseDTI;

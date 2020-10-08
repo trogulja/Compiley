@@ -16,29 +16,22 @@ Compile data from multiple sources to produce work report
     - [x] file created equal or higher, modified higher - replace
     - [x] what to do if we have more than one same filename as source?
       - [x] first folder within data (so, data/something) should be captured and added to name (data-18-01/file.xls)
-- [x] drop source from db if it's already known source (cascade drop for related entries)
-- [ ] parse file (parser defines source - metaUsers must contain a column for it)
-  - [ ] atomic jobs parsing (claro, dti, parte)
-    - [ ] check if known user (set John Doe for unkowns), get id
-    - [ ] check if known job (if not: add to db, update metaJobs), get id
-    - [ ] check if known type (if not: throw an error, should be defined upfront), get id
-    - [ ] check if known day (if not: add to db), get id
-    - [ ] if duration does not exist, set average value based on type, set duration_type to 1
-    - [ ] end of file:
-      - [ ] reduce jobsAtomic by day / job / source / type / user / duration exist
-      - [ ] ***!!!*** - figure a way to link jobsAtomic & jobs
-      - [ ] insert into jobs, get real id
-      - [ ] insert into jobsAtomic
-      - [ ] insert into metaSource
-  - [ ] non-atomic jobs parsing (worktime, easyjob, admin)
-    - [ ] check if known user (if not: throw an error, because it should be defined upfront), get id
-    - [ ] check if known job (if not: add to db, update metaJobs), get id
-    - [ ] check if known type (if not: throw an error, should be defined upfront), get id
-    - [ ] check if known day (if not: add to db), get id
-    - [ ] if duration does not exist, throw an error, because it should exist for this type
-    - [ ] end of file:
-      - [ ] insert into metaSource, get id
-      - [ ] insert into jobs
+- [ ] parseDTI
+  - [x] handle meta vs db sate
+    - [x] drop source from db if it's already known source (cascade drop for related entries)
+    - [x] check if known user (set John Doe for unkowns), get id
+      -  [ ] better handling for unknown users
+    - [x] check if known job (if not: add to db, update metaJobs), get id
+    - [x] check if known type (if not: throw an error, should be defined upfront), get id
+    - [x] check if known day (if not: add to db), get id
+  - [x] handle standard images
+  - [x] handle automatic images
+  - [x] handle cutout images
+    - [x] solve duration for cutout images
+  - [x] end of file db housekeeping
+    - [x] reduce jobsAtomic by day / job / source / type / user into job
+    - [x] insert new jobs, get id
+    - [x] update jobsAtomic with valid id, insert into db
 - [ ] db housekeeping (at the batch end)
   - [ ] for each new day added or updated
     - [ ] sum_images

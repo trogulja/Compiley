@@ -18,7 +18,7 @@ function getMeta(db) {
       value: 'id',
     },
     types: {
-      query: `SELECT id, name FROM metaTypes WHERE 'group' = 'images'`,
+      query: `SELECT id, name FROM metaTypes WHERE [group]='image'`,
       key: 'name',
       value: 'id',
     },

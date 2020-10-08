@@ -73,4 +73,26 @@ function handleDay(timestamp, meta, db) {
   return info.lastInsertRowid;
 }
 
-module.exports = { handleProduct, handleSource, handleDay };
+function insertNewJob(row, db) {
+  console.log(row)
+  const info = db
+    .prepare('INSERT INTO jobs (days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration) VALUES (@days, @metaJobs, @metaSource, @metaTypes, @metaUsers, @amount, @duration)')
+    .run(row);
+
+  if (info.changes !== 1) return false;
+
+  return info.lastInsertRowid;
+}
+
+function insertTransactionJobsAtomic(transaction, db) {
+  const insert = db.prepare('INSERT INTO jobsAtomic (jobs, hour, minute, second, duration, d_type) VALUES (@jobs, @hour, @minute, @second, @duration, @d_type)');
+
+  const insertMany = db.transaction((jobs) => {
+    for (const job of jobs) insert.run(job);
+  });
+
+  insertMany(transaction);
+  return true;
+}
+
+module.exports = { handleProduct, handleSource, handleDay, insertNewJob, insertTransactionJobsAtomic };
