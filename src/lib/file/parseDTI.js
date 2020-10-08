@@ -47,6 +47,9 @@ async function parseDTI(file, meta, db) {
     // row.refreshedBy = meta.users.dti[row.refreshedBy] || 'xx_' + row.refreshedBy;
     row.refreshedBy = meta.users.dti[row.refreshedBy] || null;
 
+    // ignore unknown user
+    if (!row.refreshedBy) continue;
+
     // Check for existing deskName, add new one if not found!
 
     let testing = true;
@@ -102,6 +105,7 @@ async function parseDTI(file, meta, db) {
           user: row.refreshedBy,
           file: row.fileHeaderName,
           duration: 0,
+          d_type: 4,
         })
         .catch((e) => console.log(e));
     } else if (row.newStatusId == 1421) {
@@ -119,6 +123,7 @@ async function parseDTI(file, meta, db) {
           user: row.refreshedBy,
           file: row.fileHeaderName,
           duration: 0,
+          d_type: 4,
         })
         .catch((e) => console.log(e));
     } else if (row.newStatusId == 1423) {
@@ -153,11 +158,17 @@ async function parseDTI(file, meta, db) {
 
       let type = 'cutout';
       let duration = startTime ? row.changeDate - startTime : 0; // If we don't have duration, set 0
+      let d_type = 0; // true if we have duration
       duration = Math.round(duration / 1000); // Convert duration from ms to s
       if (duration > 8 * 60 * 60) duration = 8 * 60 * 60; // Limit duration to 8h!
-      if (row.oldStatusId != 1423) duration = -1; // TIBOR - ukoliko prethodni status nije M4-Process, prebaci u standardnu sliku!
-      if (duration <= 0) type = 'standard'; // If there is no time for cutout, we count that as Standard image!
-      if (duration <= 0) duration = undefined; // If there is no time for cutout, we count that as Standard image!
+      if (row.oldStatusId != 1423) duration = 0; // TIBOR - ukoliko prethodni status nije M4-Process, prebaci u standardnu sliku!
+      if (duration <= 0) {
+        // If there is no time for cutout, we count that as Standard image!
+        d_type = 4; // to be determined later
+        duration = 0;
+        type = 'standard';
+      }
+
       await jobsAtomic
         .insert({
           type: meta.types[type],
@@ -171,6 +182,7 @@ async function parseDTI(file, meta, db) {
           user: row.refreshedBy,
           file: row.fileHeaderName,
           duration: duration,
+          d_type: d_type,
         })
         .catch((e) => console.log(e));
     }
@@ -206,12 +218,31 @@ async function parseDTI(file, meta, db) {
      */
     // jobs: sum per source, day, product, type, user - set id
     // atom: get id - keep hour, minute, second, duration, d_type
-    const id = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][id]`, res.id);
-    const amount = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][amount]`, 0) + 1;
-    const duration = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][duration]`, 0) + res.duration;
+    const id = get(
+      tableJobs,
+      `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][id]`,
+      res.id
+    );
+    const amount =
+      get(
+        tableJobs,
+        `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][amount]`,
+        0
+      ) + 1;
+    const duration =
+      get(
+        tableJobs,
+        `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][duration]`,
+        0
+      ) + res.duration;
 
     res.id = id;
-    setWith(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}]`, { id, amount, duration }, Object);
+    setWith(
+      tableJobs,
+      `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}]`,
+      { id, amount, duration, d_type: res.d_type },
+      Object
+    );
   }
 
   // Insert jobs into db
@@ -224,7 +255,11 @@ async function parseDTI(file, meta, db) {
             const id = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].id;
             const amount = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].amount;
             const duration = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].duration;
-            const jobid = tools.insertNewJob({ days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration }, db);
+            const d_type = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].d_type;
+            const jobid = tools.insertNewJob(
+              { days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type },
+              db
+            );
             tableJobsId[id] = jobid;
           }
         }
@@ -235,11 +270,18 @@ async function parseDTI(file, meta, db) {
   // Insert jobsAtomic into db
   const transactionJobsAtomic = [];
   for (const job of results) {
-    transactionJobsAtomic.push({ jobs: tableJobsId[job.id], hour: job.hour, minute: job.minute, second: job.second, duration: job.duration, d_type: job.d_type });
+    transactionJobsAtomic.push({
+      jobs: tableJobsId[job.id],
+      hour: job.hour,
+      minute: job.minute,
+      second: job.second,
+      duration: job.duration,
+      d_type: job.d_type,
+    });
   }
   tools.insertTransactionJobsAtomic(transactionJobsAtomic, db);
 
-  // console.log(results);
+  // console.log(transactionJobsAtomic);
   return true;
 }
 

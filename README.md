@@ -25,9 +25,12 @@ Compile data from multiple sources to produce work report
     - [x] check if known type (if not: throw an error, should be defined upfront), get id
     - [x] check if known day (if not: add to db), get id
   - [x] handle standard images
+    - [x] set d_type 4 in first go (will be read from claro logs or assumed)
   - [x] handle automatic images
+    - [x] set d_type 4 in first go (will be read from claro logs or assumed)
   - [x] handle cutout images
     - [x] solve duration for cutout images
+    - [x] d_type = 0 (read from source)
   - [x] end of file db housekeeping
     - [x] reduce jobsAtomic by day / job / source / type / user into job
     - [x] insert new jobs, get id

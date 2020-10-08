@@ -74,9 +74,8 @@ function handleDay(timestamp, meta, db) {
 }
 
 function insertNewJob(row, db) {
-  console.log(row)
   const info = db
-    .prepare('INSERT INTO jobs (days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration) VALUES (@days, @metaJobs, @metaSource, @metaTypes, @metaUsers, @amount, @duration)')
+    .prepare('INSERT INTO jobs (days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type) VALUES (@days, @metaJobs, @metaSource, @metaTypes, @metaUsers, @amount, @duration, @d_type)')
     .run(row);
 
   if (info.changes !== 1) return false;

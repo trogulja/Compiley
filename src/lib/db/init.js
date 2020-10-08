@@ -9,10 +9,14 @@ function checkDbTables(db) {
 
   const helperPrintTypeRegex =
     'CREATE TABLE IF NOT EXISTS helperPrintTypeRegex (id INTEGER PRIMARY KEY UNIQUE NOT NULL, job_name_regex STRING, metaPrintTypes INTEGER REFERENCES metaPrintTypes (id) ON DELETE RESTRICT ON UPDATE CASCADE);';
-  const metaPrintTypes = 'CREATE TABLE IF NOT EXISTS metaPrintTypes (id INTEGER PRIMARY KEY UNIQUE NOT NULL, type STRING, color_profile STRING);';
-  const metaUsers = 'CREATE TABLE IF NOT EXISTS metaUsers (id INTEGER PRIMARY KEY NOT NULL UNIQUE, name STRING, dti STRING, claro STRING, easyjob STRING, worktime STRING, admin STRING);';
-  const metaTypes = 'CREATE TABLE IF NOT EXISTS metaTypes (id INTEGER PRIMARY KEY UNIQUE NOT NULL, [group] STRING, name STRING);';
-  const metaSource = 'CREATE TABLE IF NOT EXISTS metaSource (id INTEGER PRIMARY KEY UNIQUE NOT NULL, type STRING, name STRING, size INTEGER, t_created INTEGER, t_modified INTEGER, t_parsed INTEGER);';
+  const metaPrintTypes =
+    'CREATE TABLE IF NOT EXISTS metaPrintTypes (id INTEGER PRIMARY KEY UNIQUE NOT NULL, type STRING, color_profile STRING);';
+  const metaUsers =
+    'CREATE TABLE IF NOT EXISTS metaUsers (id INTEGER PRIMARY KEY NOT NULL UNIQUE, name STRING, dti STRING, claro STRING, easyjob STRING, worktime STRING, admin STRING);';
+  const metaTypes =
+    'CREATE TABLE IF NOT EXISTS metaTypes (id INTEGER PRIMARY KEY UNIQUE NOT NULL, [group] STRING, name STRING);';
+  const metaSource =
+    'CREATE TABLE IF NOT EXISTS metaSource (id INTEGER PRIMARY KEY UNIQUE NOT NULL, type STRING, name STRING, size INTEGER, t_created INTEGER, t_modified INTEGER, t_parsed INTEGER);';
   const metaJobs =
     'CREATE TABLE IF NOT EXISTS metaJobs (id INTEGER PRIMARY KEY UNIQUE NOT NULL, country STRING, client_group STRING, client STRING, product_group STRING, product STRING UNIQUE ON CONFLICT IGNORE, metaPrintTypes STRING REFERENCES metaPrintTypes (id) ON DELETE RESTRICT ON UPDATE CASCADE);';
   const days =
@@ -23,8 +27,22 @@ function checkDbTables(db) {
     'CREATE TABLE IF NOT EXISTS jobs (id INTEGER UNIQUE ON CONFLICT IGNORE NOT NULL ON CONFLICT IGNORE PRIMARY KEY ON CONFLICT IGNORE, days INTEGER REFERENCES days (id) ON DELETE CASCADE ON UPDATE CASCADE, metaJobs INTEGER REFERENCES metaJobs (id) ON DELETE RESTRICT ON UPDATE CASCADE, metaSource INTEGER REFERENCES metaSource (id) ON DELETE CASCADE ON UPDATE CASCADE, metaTypes INTEGER REFERENCES metaTypes (id) ON DELETE RESTRICT ON UPDATE CASCADE, metaUsers INTEGER REFERENCES metaUsers (id) ON DELETE RESTRICT ON UPDATE CASCADE, amount INTEGER, duration INTEGER, d_type INTEGER NOT NULL DEFAULT (0));';
   const jobsAtomic =
     'CREATE TABLE IF NOT EXISTS jobsAtomic (id INTEGER UNIQUE ON CONFLICT IGNORE NOT NULL ON CONFLICT IGNORE PRIMARY KEY ON CONFLICT IGNORE, jobs INTEGER REFERENCES jobs (id) ON DELETE CASCADE ON UPDATE CASCADE, hour INTEGER, minute INTEGER, second INTEGER, duration INTEGER, d_type INTEGER NOT NULL DEFAULT (0));';
+  const helperClaro =
+    'CREATE TABLE IF NOT EXISTS helperClaro (id INTEGER PRIMARY KEY NOT NULL UNIQUE, timestamp INTEGER,  days INTEGER REFERENCES days (id) ON DELETE CASCADE ON UPDATE CASCADE, filename STRING, channel STRING, metaUsers INTEGER REFERENCES metaUsers (id) ON DELETE RESTRICT ON UPDATE CASCADE, pstime INTEGER, calctime INTEGER)';
 
-  const table_check_order = [helperPrintTypeRegex, metaPrintTypes, metaUsers, metaTypes, metaSource, metaJobs, days, worktime, jobs, jobsAtomic];
+  const table_check_order = [
+    helperPrintTypeRegex,
+    metaPrintTypes,
+    metaUsers,
+    metaTypes,
+    metaSource,
+    metaJobs,
+    days,
+    worktime,
+    jobs,
+    jobsAtomic,
+    helperClaro,
+  ];
 
   let output = true;
   for (const table of table_check_order) {

@@ -41,7 +41,7 @@ Database definitions and column explanations.
 - **minute**: `INTEGER`
 - **second**: `INTEGER`
 - **duration**: `INTEGER`
-- **d_type**: `INTEGER - not null, default 0` *(0: read from source, 1: calculated, 2: calculated from average, 3: assumed)*
+- **d_type**: `INTEGER - not null, default 0` *(0: read from source, 1: calculated, 2: calculated from average, 3: assumed, 4: to be determined later)*
 
 ## metaJobs - need revision for this table
 - **id**: `INTEGER - primary key, unique, not null`
@@ -84,3 +84,13 @@ Database definitions and column explanations.
 - **id**: `INTEGER - primary key, unique, not null`
 - **job_name_regex**: `STRING` *(a way to identify new jobs that repeat)*
 - **metaPrintTypes**: `FOREIGN KEY - metaPrintTypes.id | del.RESTRICT, upd.CASCADE` *(a link to metaPrintTypes table)*
+
+## helperClaro
+- **id**: `INTEGER - primary key, unique, not null`
+- **timestamp**: `INTEGER` *(point in time)*
+- **days**: `FOREIGN KEY - days.id | del.CASCADE, upd.CASCADE` *(a link to days table)*
+- **filename**: `STRING` *(need to match with known filenames)*
+- **channel**: `STRING` *(to be able to figure if it's automatic or standard image)*
+- **metaUsers**: `FOREIGN KEY - metaUsers.id | del.RESTRICT, upd.CASCADE` *(a link to metaUsers table)*
+- **pstime**: `INTEGER`
+- **calctime**: `INTEGER`
