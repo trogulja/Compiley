@@ -33,12 +33,12 @@ async function gatherAll() {
   let currentFile = 0;
   let percentageDone = 0;
   let totalFiles = 0;
-  for (const group in files.all) {
-    totalFiles += files.all[group].length;
+  for (const group in files.new) {
+    totalFiles += files.new[group].length;
   }
 
-  for (const group in files.all) {
-    for (const file of files.all[group]) {
+  for (const group in files.new) {
+    for (const file of files.new[group]) {
       console.log(`Parsing file ${file.name} of group ${group}`);
 
       if (group === 'dti') await parseDTI(file, meta, db);

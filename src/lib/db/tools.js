@@ -63,8 +63,8 @@ function handleDay(timestamp, meta, db) {
   const pDate = breakDate(timestamp);
   if (get(meta.days, `[${pDate.year}][${pDate.month}][${pDate.day}]`)) return meta.days[pDate.year][pDate.month][pDate.day];
 
-  const newDate = new Date(pDate.year, pDate.month, pDate.day).getTime();
-  const info = db.prepare('INSERT INTO days (year, month, day, timestamp) VALUES (@year, @month, @day, @timestamp)').run({ year: pDate.year, month: pDate.month, day: pDate.day, timestamp: newDate });
+  const newDate = new Date(pDate.year, pDate.month - 1, pDate.day).getTime();
+  let info = db.prepare('INSERT INTO days (year, month, day, timestamp) VALUES (@year, @month, @day, @timestamp)').run({ year: pDate.year, month: pDate.month, day: pDate.day, timestamp: newDate });
 
   if (info.changes !== 1) return false;
 

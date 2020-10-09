@@ -35,7 +35,21 @@ Compile data from multiple sources to produce work report
     - [x] reduce jobsAtomic by day / job / source / type / user into job
     - [x] insert new jobs, get id
     - [x] update jobsAtomic with valid id, insert into db
+- [ ] parseClaro
+  - [ ] new source with date constraint
+  - [ ] write results to helperClaro (or make new table just for claro?)
+  - [ ]
 - [ ] db housekeeping (at the batch end)
+  - [ ] helperClaro
+    - [ ] match claro with dti standard
+      - [ ] update matched jobsAtomic
+    - [ ] match claro with dti automatic
+      - [ ] update matched jobsAtomic
+    - [ ] match claro with klz inspector (halbauto / standard)
+      - [ ] insert into jobsAtomic
+    - [ ] insert claro klz automatic into jobsAtomic
+    - [ ] insert claro klz elvis into jobsAtomic
+    - [ ] match claro others into jobsAtomic
   - [ ] for each new day added or updated
     - [ ] sum_images
   - [ ] for each jobs.d_type > 1
