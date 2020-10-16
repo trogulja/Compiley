@@ -30,6 +30,20 @@ async function gatherAll() {
   // console.log(files.new);
   // return false;
 
+  // Testing specific file
+  // const file = {
+  //   name: '.\\2018\\09\\VL\\Slike VL_2018-09-12-09-05-41.xls',
+  //   path: 'E:\\code\\Apps\\Compiley\\data\\2018\\09\\VL\\Slike VL_2018-09-12-09-05-41.xls',
+  //   size: 10752,
+  //   t_created: 1601152576391.5225,
+  //   t_modified: 1601152576391.5225,
+  //   t_parsed: 1601313389239,
+  // };
+
+  // const results = await parseDTI(file, meta, db);
+  // console.log(results.filter((res) => res.user === 3).filter((res) => res.name.includes('JP019_057')));
+  // return;
+
   let currentFile = 0;
   let percentageDone = 0;
   let totalFiles = 0;
@@ -39,7 +53,7 @@ async function gatherAll() {
 
   for (const group in files.new) {
     for (const file of files.new[group]) {
-      console.log(`Parsing file ${file.name} of group ${group}`);
+      // console.log(`Parsing file ${file.name} of group ${group}`);
 
       if (group === 'dti') await parseDTI(file, meta, db);
       // if (file.group === 'easyjob') await
@@ -49,7 +63,8 @@ async function gatherAll() {
 
       currentFile += 1;
       percentageDone = Math.floor((currentFile / totalFiles) * 100);
-      console.log(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.`);
+      // console.log(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.`);
+      process.stdout.write(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.${'\033[0G'}`);
     }
   }
 

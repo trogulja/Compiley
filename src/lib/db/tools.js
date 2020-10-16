@@ -54,9 +54,10 @@ function handleSource(file, group, meta, db) {
 
 function handleDay(timestamp, meta, db) {
   // day should be from 3am to 3am, to catch that post-midnight work
+  // nope, because that will cause errors with unique stuff.
   function breakDate(d) {
     if (typeof d === 'number') d = new Date(d);
-    d.setHours(d.getHours() - 3); // Offset -3h to get same date range up to 3AM!
+    // d.setHours(d.getHours() - 3); // Offset -3h to get same date range up to 3AM!
     return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate(), hour: d.getHours(), minute: d.getMinutes(), second: d.getSeconds() };
   }
 
@@ -74,9 +75,18 @@ function handleDay(timestamp, meta, db) {
 }
 
 function insertNewJob(row, db) {
-  const info = db
-    .prepare('INSERT INTO jobs (days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type) VALUES (@days, @metaJobs, @metaSource, @metaTypes, @metaUsers, @amount, @duration, @d_type)')
-    .run(row);
+  const insert = db.prepare(
+    'INSERT INTO jobs (days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type) VALUES (@days, @metaJobs, @metaSource, @metaTypes, @metaUsers, @amount, @duration, @d_type)'
+  );
+
+  let info;
+  try {
+    info = insert.run(row);
+  } catch (error) {
+    // console.log(row);
+    // console.log(error);
+    return false;
+  }
 
   if (info.changes !== 1) return false;
 
@@ -84,10 +94,20 @@ function insertNewJob(row, db) {
 }
 
 function insertTransactionJobsAtomic(transaction, db) {
-  const insert = db.prepare('INSERT INTO jobsAtomic (jobs, hour, minute, second, duration, d_type) VALUES (@jobs, @hour, @minute, @second, @duration, @d_type)');
+  const insert = db.prepare(
+    'INSERT INTO jobsAtomic (jobs, hour, minute, second, duration, d_type, timestamp1, timestamp2, name) VALUES (@jobs, @hour, @minute, @second, @duration, @d_type, @timestamp1, @timestamp2, @name)'
+  );
 
   const insertMany = db.transaction((jobs) => {
-    for (const job of jobs) insert.run(job);
+    for (const job of jobs) {
+      try {
+        insert.run(job);
+      } catch (error) {
+        console.log(job);
+        console.log(error);
+        continue;
+      }
+    }
   });
 
   insertMany(transaction);

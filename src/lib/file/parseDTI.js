@@ -27,6 +27,7 @@ async function parseDTI(file, meta, db) {
   let jobsAtomic = new Datastore();
   let m4status = new Datastore();
 
+  let index = 1;
   for (const row of sheet) {
     /**
      * id               - unique id of this file object
@@ -44,13 +45,12 @@ async function parseDTI(file, meta, db) {
     row.lastRefreshed = eh.date2ms(row.lastRefreshed);
     if (!row.fileHeaderName) row.fileHeaderName = 'nema imena';
     row.fileHeaderName = eh.sanitizeString(row.fileHeaderName);
+    index += 1;
     // row.refreshedBy = meta.users.dti[row.refreshedBy] || 'xx_' + row.refreshedBy;
     row.refreshedBy = meta.users.dti[row.refreshedBy] || null;
 
     // ignore unknown user
     if (!row.refreshedBy) continue;
-
-    // Check for existing deskName, add new one if not found!
 
     let testing = true;
     if (testing) {
@@ -69,7 +69,7 @@ async function parseDTI(file, meta, db) {
       if (row.statusName == '3-Spremno Aut.' && row.oldStatusId == 1421) ok = true;
       if (row.statusName == '3A-M4-Proces' && row.oldStatusId == 1423) ok = true;
       if (row.statusName == '2g-Automatska obrada' && row.oldStatusId == 264049) ok = true;
-      if (!ok) console.log(row);
+      if (!ok) console.log(`\n`, 'Name / ID mismatch', file.name, row);
 
       ok = false; // test if we missed some status lines on second set
       if (row.statusName_1 == '-' && row.newStatusId == 0) ok = true;
@@ -86,7 +86,7 @@ async function parseDTI(file, meta, db) {
       if (row.statusName_1 == '3-Spremno Aut.' && row.newStatusId == 1421) ok = true;
       if (row.statusName_1 == '3A-M4-Proces' && row.newStatusId == 1423) ok = true;
       if (row.statusName_1 == '2g-Automatska obrada' && row.newStatusId == 264049) ok = true;
-      if (!ok) console.log(row);
+      if (!ok) console.log(`\n`, 'Name / ID mismatch', file.name, row);
     }
 
     const pDate = eh.breakDate(row.lastRefreshed);
@@ -96,6 +96,8 @@ async function parseDTI(file, meta, db) {
         .insert({
           type: meta.types['standard'],
           time: row.lastRefreshed,
+          time2: row.changeDate,
+          row: index,
           day: tools.handleDay(row.lastRefreshed, meta, db),
           hour: pDate.hour,
           minute: pDate.minute,
@@ -103,7 +105,7 @@ async function parseDTI(file, meta, db) {
           product: tools.handleProduct(row.deskName, meta, db),
           source: source,
           user: row.refreshedBy,
-          file: row.fileHeaderName,
+          name: row.fileHeaderName,
           duration: 0,
           d_type: 4,
         })
@@ -114,6 +116,8 @@ async function parseDTI(file, meta, db) {
         .insert({
           type: meta.types['auto'],
           time: row.lastRefreshed,
+          time2: row.changeDate,
+          row: index,
           day: tools.handleDay(row.lastRefreshed, meta, db),
           hour: pDate.hour,
           minute: pDate.minute,
@@ -121,7 +125,7 @@ async function parseDTI(file, meta, db) {
           product: tools.handleProduct(row.deskName, meta, db),
           source: source,
           user: row.refreshedBy,
-          file: row.fileHeaderName,
+          name: row.fileHeaderName,
           duration: 0,
           d_type: 4,
         })
@@ -173,6 +177,8 @@ async function parseDTI(file, meta, db) {
         .insert({
           type: meta.types[type],
           time: row.lastRefreshed,
+          time2: row.changeDate,
+          row: index,
           day: tools.handleDay(row.lastRefreshed, meta, db),
           hour: pDate.hour,
           minute: pDate.minute,
@@ -180,7 +186,7 @@ async function parseDTI(file, meta, db) {
           product: tools.handleProduct(row.deskName, meta, db),
           source: source,
           user: row.refreshedBy,
-          file: row.fileHeaderName,
+          name: row.fileHeaderName,
           duration: duration,
           d_type: d_type,
         })
@@ -190,15 +196,16 @@ async function parseDTI(file, meta, db) {
 
   // save all stuff into db
   const results = await jobsAtomic.find({}).sort({ time: 1 });
+  // return results;
 
   // remove all and free up memory
-  await jobsAtomic.remove({}, { multi: true });
-  await m4status.remove({}, { multi: true });
-  jobsAtomic = null;
-  m4status = null;
-  sheet = null;
-  ws = null;
-  wb = null;
+  // await jobsAtomic.remove({}, { multi: true });
+  // await m4status.remove({}, { multi: true });
+  // jobsAtomic = null;
+  // m4status = null;
+  // sheet = null;
+  // ws = null;
+  // wb = null;
 
   // prepare db transactions
   const tableJobs = {};
@@ -218,31 +225,12 @@ async function parseDTI(file, meta, db) {
      */
     // jobs: sum per source, day, product, type, user - set id
     // atom: get id - keep hour, minute, second, duration, d_type
-    const id = get(
-      tableJobs,
-      `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][id]`,
-      res.id
-    );
-    const amount =
-      get(
-        tableJobs,
-        `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][amount]`,
-        0
-      ) + 1;
-    const duration =
-      get(
-        tableJobs,
-        `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][duration]`,
-        0
-      ) + res.duration;
+    const id = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][id]`, res.row);
+    const amount = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][amount]`, 0) + 1;
+    const duration = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][duration]`, 0) + res.duration;
 
     res.id = id;
-    setWith(
-      tableJobs,
-      `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}]`,
-      { id, amount, duration, d_type: res.d_type },
-      Object
-    );
+    setWith(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}]`, { id, amount, duration, d_type: res.d_type }, Object);
   }
 
   // Insert jobs into db
@@ -256,11 +244,8 @@ async function parseDTI(file, meta, db) {
             const amount = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].amount;
             const duration = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].duration;
             const d_type = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].d_type;
-            const jobid = tools.insertNewJob(
-              { days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type },
-              db
-            );
-            tableJobsId[id] = jobid;
+            const jobid = tools.insertNewJob({ days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type }, db);
+            if (jobid) tableJobsId[id] = jobid;
           }
         }
       }
@@ -270,6 +255,7 @@ async function parseDTI(file, meta, db) {
   // Insert jobsAtomic into db
   const transactionJobsAtomic = [];
   for (const job of results) {
+    // if (job.name.includes('JP019_057')) console.log(job)
     transactionJobsAtomic.push({
       jobs: tableJobsId[job.id],
       hour: job.hour,
@@ -277,6 +263,10 @@ async function parseDTI(file, meta, db) {
       second: job.second,
       duration: job.duration,
       d_type: job.d_type,
+      timestamp1: job.time,
+      timestamp2: job.time2,
+      name: job.name,
+      row: job.row,
     });
   }
   tools.insertTransactionJobsAtomic(transactionJobsAtomic, db);

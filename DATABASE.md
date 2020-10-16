@@ -42,6 +42,7 @@ Database definitions and column explanations.
 - **second**: `INTEGER`
 - **duration**: `INTEGER`
 - **d_type**: `INTEGER - not null, default 0` *(0: read from source, 1: calculated, 2: calculated from average, 3: assumed, 4: to be determined later)*
+- **name**: `STRING` *(filename or some other identifier)*
 
 ## metaJobs - need revision for this table
 - **id**: `INTEGER - primary key, unique, not null`

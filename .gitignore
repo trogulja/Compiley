@@ -107,6 +107,9 @@ dist
 db/compiley.db
 db/compiley.db-shm
 db/compiley.db-wal
+db/logClaro.db
+db/logClaro.db-shm
+db/logClaro.db-wal
 
 # Data stuff
 data/2018/
