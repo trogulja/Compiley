@@ -25,7 +25,7 @@ function checkDbTables(db) {
   const jobsAtomic =
     'CREATE TABLE IF NOT EXISTS jobsAtomic (id INTEGER UNIQUE ON CONFLICT IGNORE NOT NULL ON CONFLICT IGNORE PRIMARY KEY ON CONFLICT IGNORE, jobs INTEGER REFERENCES jobs (id) ON DELETE CASCADE ON UPDATE CASCADE, hour INTEGER, minute INTEGER, second INTEGER, duration INTEGER, d_type INTEGER NOT NULL DEFAULT (0), timestamp1 INTEGER, timestamp2 INTEGER, name STRING, UNIQUE(jobs, timestamp1, timestamp2, name));';
   const helperClaro =
-    'CREATE TABLE IF NOT EXISTS helperClaro (id INTEGER PRIMARY KEY NOT NULL UNIQUE, type INTEGER, timestamp INTEGER, days INTEGER REFERENCES days (id) ON DELETE CASCADE ON UPDATE CASCADE, filename STRING, channel STRING, metaUsers INTEGER REFERENCES metaUsers (id) ON DELETE RESTRICT ON UPDATE CASCADE, pstime INTEGER, calctime INTEGER, processed BOOLEAN, UNIQUE(timestamp, filename))';
+    'CREATE TABLE IF NOT EXISTS helperClaro (id INTEGER PRIMARY KEY NOT NULL UNIQUE, type INTEGER, timestamp INTEGER, days INTEGER REFERENCES days (id) ON DELETE CASCADE ON UPDATE CASCADE, filename STRING, channel STRING, metaUsers INTEGER REFERENCES metaUsers (id) ON DELETE RESTRICT ON UPDATE CASCADE, pstime INTEGER, calctime INTEGER, processed BOOLEAN, UNIQUE(timestamp, filename, channel))';
 
   const table_check_order = [
     helperPrintTypeRegex,

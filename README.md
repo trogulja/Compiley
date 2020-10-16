@@ -20,7 +20,7 @@ Compile data from multiple sources to produce work report
   - [x] handle meta vs db sate
     - [x] drop source from db if it's already known source (cascade drop for related entries)
     - [x] check if known user (set John Doe for unkowns), get id
-      -  [ ] better handling for unknown users
+      - [ ] better handling for unknown users (ignore currently)
     - [x] check if known job (if not: add to db, update metaJobs), get id
     - [x] check if known type (if not: throw an error, should be defined upfront), get id
     - [x] check if known day (if not: add to db), get id
@@ -36,21 +36,14 @@ Compile data from multiple sources to produce work report
     - [x] insert new jobs, get id
     - [x] update jobsAtomic with valid id, insert into db
 - [ ] parseClaro
-  - [ ] new source with date constraint
-  - [ ] write results to helperClaro (or make new table just for claro?)
-  - [ ]
+  - [x] write results to helperClaro (or make new table just for claro?)
 - [ ] db housekeeping (at the batch end)
-  - [ ] helperClaro
-    - [ ] match claro with dti standard
-      - [ ] update matched jobsAtomic
-    - [ ] match claro with dti automatic
-      - [ ] update matched jobsAtomic
-    - [ ] match claro with klz inspector (halbauto / standard)
-      - [ ] insert into jobsAtomic
-    - [ ] insert claro klz automatic into jobsAtomic
-    - [ ] insert claro klz elvis into jobsAtomic
-    - [ ] match claro others into jobsAtomic
-  - [ ] for each new day added or updated
-    - [ ] sum_images
-  - [ ] for each jobs.d_type > 1
-  - [ ] for each jobsAtomic.d_type > 1
+  - [ ] helperClaro match with jobsAtomic DTI
+    - [ ] standard
+    - [ ] automatic
+  - [ ] helperClaro match with jobs EasyJob
+  - [ ] days summify
+    - [ ] worktime vs jobs adjust assumed time per day
+    - [ ] resummify days
+    - [ ] report problem inputs
+      - [ ] ignore first in month double inputs
