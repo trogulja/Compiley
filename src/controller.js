@@ -14,6 +14,7 @@ const database = require('./lib/db/init');
 const getMeta = require('./lib/db/meta');
 const getFiles = require('./lib/file/getFiles');
 const parseDTI = require('./lib/file/parseDTI');
+const parseEasyjob = require('./lib/file/parseEasyjob');
 const path = require('path');
 
 async function gatherAll() {
@@ -56,12 +57,12 @@ async function gatherAll() {
       // console.log(`Parsing file ${file.name} of group ${group}`);
 
       if (group === 'dti') await parseDTI(file, meta, db);
-      // if (file.group === 'easyjob') await
-      // if (file.group === 'worktime')
-      // if (file.group === 'parte')
-      // if (file.group === '')
+      if (group === 'easyjob') await parseEasyjob(file, meta, db);
+        // if (file.group === 'worktime')
+        // if (file.group === 'parte')
+        // if (file.group === '')
 
-      currentFile += 1;
+        currentFile += 1;
       percentageDone = Math.floor((currentFile / totalFiles) * 100);
       // console.log(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.`);
       process.stdout.write(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.${'\033[0G'}`);

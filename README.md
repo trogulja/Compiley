@@ -37,6 +37,10 @@ Compile data from multiple sources to produce work report
     - [x] update jobsAtomic with valid id, insert into db
 - [ ] parseClaro
   - [x] write results to helperClaro (or make new table just for claro?)
+- [ ] parse EasyJob
+- [ ] parse Worktime
+- [ ] parse Administracija
+- [ ] parse Parte
 - [ ] db housekeeping (at the batch end)
   - [ ] helperClaro match with jobsAtomic DTI
     - [ ] standard
