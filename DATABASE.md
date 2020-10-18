@@ -49,8 +49,8 @@ Database definitions and column explanations.
 - **country**: `STRING` ie: AT | HR
 - **client_group**: `STRING` *(Styria, AdriaMedia or some common identifier like that)*
 - **client**: `STRING` *(24h, VL, KLZ, Anzeigen & Marketing Klei (AT), etc... - Kunde in Easyjob)*
-- **product_group**: `STRING` *(A way to group similar products - newspaper, magazines, programming - to be determined)*
-- **product**: `STRING - unique` *(Produkt in EasyJob, desk in DTI)*
+- **product_group**: `STRING` *(Produkt in EasyJob, TBD for DTI)*
+- **product**: `STRING - unique` *(JobBezeichung in EasyJob, desk in DTI)*
 - **metaPrintTypes**: `STRING` *(FOREIGN KEY - metaPrintTypes.id | del.RESTRICT, upd.CASCADE)*
 
 ## metaPrintTypes

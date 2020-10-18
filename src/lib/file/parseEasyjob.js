@@ -28,6 +28,8 @@ async function parseEasyjob(file, meta, db) {
   });
 
   let index = 0;
+  const tableJobs = {};
+
   for (const row of sheet) {
     let temp = {
       date: '29.01.18',
@@ -52,6 +54,7 @@ async function parseEasyjob(file, meta, db) {
     index += 1;
     if (index < 2) continue;
     if (!row.date) console.log(row);
+
     const dateRaw = row.date.split('.');
     const date = new Date(Number(`${dateRaw[2] > 78 ? '19' : '20'}${dateRaw[2]}`), Number(dateRaw[1]) - 1, Number(dateRaw[0])).getTime();
     const day = tools.handleDay(date, meta, db);
@@ -60,7 +63,7 @@ async function parseEasyjob(file, meta, db) {
     // console.log(row);
   }
 
-  const tableJobs = {
+  tableJobs = {
     metaSource: {
       days: {
         metaJobs: {
