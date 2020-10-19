@@ -43,11 +43,11 @@ async function parseDTI(file, meta, db) {
   const client = prodMatch;
   const product_group = prodMatch;
 
-  let wb = XLSX.readFile(file.path);
-  let ws = wb.Sheets[wb.SheetNames[0]];
-  let sheet = XLSX.utils.sheet_to_json(ws);
-  let jobsAtomic = new Datastore();
-  let m4status = new Datastore();
+  const wb = XLSX.readFile(file.path);
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const sheet = XLSX.utils.sheet_to_json(ws);
+  const jobsAtomic = new Datastore();
+  const m4status = new Datastore();
 
   let index = 1;
   for (const row of sheet) {
@@ -218,16 +218,6 @@ async function parseDTI(file, meta, db) {
 
   // save all stuff into db
   const results = await jobsAtomic.find({}).sort({ time: 1 });
-  // return results;
-
-  // remove all and free up memory
-  // await jobsAtomic.remove({}, { multi: true });
-  // await m4status.remove({}, { multi: true });
-  // jobsAtomic = null;
-  // m4status = null;
-  // sheet = null;
-  // ws = null;
-  // wb = null;
 
   // prepare db transactions
   const tableJobs = {};

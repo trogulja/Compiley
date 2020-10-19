@@ -2,5 +2,6 @@
   "prettier.singleQuote": true,
   "prettier.jsxSingleQuote": true,
   "prettier.printWidth": 120,
-  "editor.foldingStrategy": "indentation"
+  "editor.foldingStrategy": "indentation",
+  "editor.tabSize": 2
 }

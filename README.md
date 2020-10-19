@@ -35,9 +35,21 @@ Compile data from multiple sources to produce work report
     - [x] reduce jobsAtomic by day / job / source / type / user into job
     - [x] insert new jobs, get id
     - [x] update jobsAtomic with valid id, insert into db
+- [x] parseClaroManual
+  - [x] write results to helperClaro table
 - [ ] parseClaro
-  - [x] write results to helperClaro (or make new table just for claro?)
-- [ ] parse EasyJob
+  - [ ] link with new Claro API
+  - [ ] figure out a way to know which data to request
+- [x] parse EasyJob
+  - [x] figure out which xls colum links to which db table row
+  - [x] handle standard images
+  - [x] handle cutout images
+  - [x] handle montage
+  - [x] handle various extra work
+  - [x] handle weird edge cases
+  - [x] convert hours to MS
+  - [x] set defalut amount to 1
+  - [x] set defalut duration to 0
 - [ ] parse Worktime
 - [ ] parse Administracija
 - [ ] parse Parte

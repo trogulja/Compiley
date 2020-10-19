@@ -8,6 +8,7 @@ function getMeta(db) {
 
   // valid = ['dti', 'claro', 'easyjob', 'worktime', 'admin']
   const valid = res.map((el) => el.name).filter((el) => el !== 'id' && el !== 'name');
+  valid.push('parte');
   // console.log(valid);
   // if (!valid.includes(s)) return false;
 

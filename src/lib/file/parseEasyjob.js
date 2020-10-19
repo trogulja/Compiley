@@ -2,7 +2,6 @@
 
 // #region SetUp
 const XLSX = require('xlsx');
-const Datastore = require('nedb-promises');
 const eh = require('../util/excelHelper');
 const tools = require('../db/tools');
 const { setWith, get } = require('lodash');
@@ -24,9 +23,9 @@ async function parseEasyjob(file, meta, db) {
   // Check for existing source, drop it from db if found!
   const source = tools.handleSource(file, 'easyjob', meta, db);
 
-  let wb = XLSX.readFile(file.path);
-  let ws = wb.Sheets['GMI Stundenabfrage'];
-  let sheet = XLSX.utils.sheet_to_json(ws, {
+  const wb = XLSX.readFile(file.path);
+  const ws = wb.Sheets['GMI Stundenabfrage'];
+  const sheet = XLSX.utils.sheet_to_json(ws, {
     header: [
       'date',
       'user',
@@ -92,7 +91,7 @@ async function parseEasyjob(file, meta, db) {
     if (!user) console.log(row);
     if (!row.amount) row.amount = 0;
     if (!row.duration) row.duration = 0;
-    row.duration = hours2ms(row.duration);
+    row.duration = eh.hour2ms(row.duration);
     const product = tools.handleProduct(
       { country, client_group, client: row.client, product_group: row.product_group, product: row.product },
       meta,
@@ -157,6 +156,8 @@ async function parseEasyjob(file, meta, db) {
     }
   }
   tools.insertTransactionJobs(transactionJobs, db);
+
+  return true;
 }
 
 module.exports = parseEasyjob;

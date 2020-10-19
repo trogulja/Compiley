@@ -2,6 +2,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const fileGroup = {
   dti: /Slike.+_\d{4}(?:-\d{2}){5}\.xlsx?/,
+  parte: /Slike ?parte ?\d+\.\d+\.xlsx?/i,
   claro: /Neki regex za claro/,
   easyjob: /EasyJob_\d{4}.xlsx?/,
   worktime: /Dnevni izvještaj m4 \d{2} \d{4}.xlsx?/,

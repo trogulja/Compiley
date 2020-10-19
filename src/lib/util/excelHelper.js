@@ -11,6 +11,10 @@ function ms2date(d) {
   return d / 864e5 + 25569;
 }
 
+function hour2ms(n) {
+  return n * 1000 * 60 * 60;
+}
+
 function breakDate(d) {
   if (typeof d === 'number') d = new Date(d);
   // d.setHours(d.getHours() - 3); // Offset -3h to get same date range up to 3AM!
@@ -37,4 +41,4 @@ function sanitizeString(str) {
   return str.trim();
 }
 
-module.exports = { date2ms, ms2date, generateDate, breakDate, sanitizeString };
+module.exports = { date2ms, ms2date, hour2ms, generateDate, breakDate, sanitizeString };
