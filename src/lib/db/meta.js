@@ -18,7 +18,7 @@ function getMeta(db) {
       value: 'id',
     },
     types: {
-      query: `SELECT id, name FROM metaTypes WHERE [group]='image'`,
+      query: `SELECT id, name FROM metaTypes`,
       key: 'name',
       value: 'id',
     },
@@ -33,6 +33,15 @@ function getMeta(db) {
         result[el[x.key]] = el[x.value];
       });
     return result;
+  }
+
+  function getMetaJobs() {
+    const result = db.prepare('SELECT * FROM metaJobs').all();
+    const output = {};
+    for (const res of result) {
+      setWith(output, `["${res.client}"]["${res.product_group}"]["${res.product}"]`, res.id, Object);
+    }
+    return output;
   }
 
   function getMetaSource() {
@@ -68,19 +77,24 @@ function getMeta(db) {
   function getDays() {
     const result = db.prepare('SELECT * FROM days').all();
     const output = {};
-    for (const res in result) {
-      setWith(output, `[${result[res].year}][${result[res].month}][${result[res].day}]`, result[res].id, Object);
+    for (const res of result) {
+      setWith(output, `[${res.year}][${res.month}][${res.day}]`, res.id, Object);
     }
     return output;
   }
 
-  const jobs = getFromDb('jobs');
+  function getHelperPrintType() {
+    return db.prepare('SELECT * FROM helperPrintType').all();
+  }
+
+  const jobs = getMetaJobs();
   const types = getFromDb('types');
   const users = getMetaUsers();
   const source = getMetaSource();
+  const helperPrintType = getHelperPrintType();
   const days = getDays();
 
-  return { users, jobs, types, source, days, validGroup: valid };
+  return { users, jobs, types, source, days, validGroup: valid, helperPrintType };
 }
 
 module.exports = getMeta;

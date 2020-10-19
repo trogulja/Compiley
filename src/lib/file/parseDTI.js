@@ -21,6 +21,28 @@ async function parseDTI(file, meta, db) {
   // Check for existing source, drop it from db if found!
   const source = tools.handleSource(file, 'dti', meta, db);
 
+  const products = {
+    ['24h']: /Slike ?24_\d{4}(?:-\d{2}){5}\.xlsx?/i,
+    VL: /Slike ?VL_\d{4}(?:-\d{2}){5}\.xlsx?/i,
+    PD: /Slike ?PD_\d{4}(?:-\d{2}){5}\.xlsx?/i,
+    RP: /Slike ?RP_\d{4}(?:-\d{2}){5}\.xlsx?/i,
+  };
+
+  let prodMatch = false;
+  for (const prod in products) {
+    if (products[prod].test(file.name)) {
+      prodMatch = prod;
+    }
+  }
+
+  if (!prodMatch) console.log(file);
+  if (!prodMatch) throw new Error('What do you mean, unknown prod?');
+
+  const country = 'HR';
+  const client_group = 'DTI';
+  const client = prodMatch;
+  const product_group = prodMatch;
+
   let wb = XLSX.readFile(file.path);
   let ws = wb.Sheets[wb.SheetNames[0]];
   let sheet = XLSX.utils.sheet_to_json(ws);
@@ -102,7 +124,7 @@ async function parseDTI(file, meta, db) {
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          product: tools.handleProduct(row.deskName, meta, db),
+          product: tools.handleProduct({ country, client_group, client, product_group, product: row.deskName }, meta, db),
           source: source,
           user: row.refreshedBy,
           name: row.fileHeaderName,
@@ -122,7 +144,7 @@ async function parseDTI(file, meta, db) {
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          product: tools.handleProduct(row.deskName, meta, db),
+          product: tools.handleProduct({ country, client_group, client, product_group, product: row.deskName }, meta, db),
           source: source,
           user: row.refreshedBy,
           name: row.fileHeaderName,
@@ -183,7 +205,7 @@ async function parseDTI(file, meta, db) {
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          product: tools.handleProduct(row.deskName, meta, db),
+          product: tools.handleProduct({ country, client_group, client, product_group, product: row.deskName }, meta, db),
           source: source,
           user: row.refreshedBy,
           name: row.fileHeaderName,
@@ -217,7 +239,7 @@ async function parseDTI(file, meta, db) {
      * hour: pDate.hour,
      * minute: pDate.minute,
      * second: pDate.second,
-     * product: tools.handleProduct(row.deskName, meta, db),
+     * product: tools.handleProduct({country, client_group, client, product_group, product: row.deskName}, meta, db),
      * source: source,
      * user: row.refreshedBy,
      * file: row.fileHeaderName,
@@ -226,11 +248,19 @@ async function parseDTI(file, meta, db) {
     // jobs: sum per source, day, product, type, user - set id
     // atom: get id - keep hour, minute, second, duration, d_type
     const id = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][id]`, res.row);
-    const amount = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][amount]`, 0) + 1;
-    const duration = get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][duration]`, 0) + res.duration;
+    const amount =
+      get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][amount]`, 0) + 1;
+    const duration =
+      get(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}][duration]`, 0) +
+      res.duration;
 
     res.id = id;
-    setWith(tableJobs, `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}]`, { id, amount, duration, d_type: res.d_type }, Object);
+    setWith(
+      tableJobs,
+      `[${res.source}][${res.day}][${res.product}][${res.type}][${res.user}]`,
+      { id, amount, duration, d_type: res.d_type },
+      Object
+    );
   }
 
   // Insert jobs into db
@@ -244,7 +274,10 @@ async function parseDTI(file, meta, db) {
             const amount = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].amount;
             const duration = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].duration;
             const d_type = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].d_type;
-            const jobid = tools.insertNewJob({ days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type }, db);
+            const jobid = tools.insertNewJob(
+              { days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type },
+              db
+            );
             if (jobid) tableJobsId[id] = jobid;
           }
         }

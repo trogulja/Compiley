@@ -49,7 +49,7 @@ Database definitions and column explanations.
 - **country**: `STRING` ie: AT | HR
 - **client_group**: `STRING` *(Styria, AdriaMedia or some common identifier like that)*
 - **client**: `STRING` *(24h, VL, KLZ, Anzeigen & Marketing Klei (AT), etc... - Kunde in Easyjob)*
-- **product_group**: `STRING` *(Produkt in EasyJob, TBD for DTI)*
+- **product_group**: `STRING` *(Produkt in EasyJob, 24h/VL/PD for DTI)*
 - **product**: `STRING - unique` *(JobBezeichung in EasyJob, desk in DTI)*
 - **metaPrintTypes**: `STRING` *(FOREIGN KEY - metaPrintTypes.id | del.RESTRICT, upd.CASCADE)*
 
@@ -81,9 +81,10 @@ Database definitions and column explanations.
 - **worktime**: `STRING` *(username in workingTime)*
 - **admin**: `STRING` *(username in admin)*
 
-## helperPrintTypeRegex
+## helperPrintType
 - **id**: `INTEGER - primary key, unique, not null`
-- **job_name_regex**: `STRING` *(a way to identify new jobs that repeat)*
+- **product**: `STRING` *(a way to identify new jobs that repeat)*
+- **is_regex**: `BOOLEAN`
 - **metaPrintTypes**: `FOREIGN KEY - metaPrintTypes.id | del.RESTRICT, upd.CASCADE` *(a link to metaPrintTypes table)*
 
 ## helperClaro
