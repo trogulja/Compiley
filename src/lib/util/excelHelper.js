@@ -12,7 +12,7 @@ function ms2date(d) {
 }
 
 function hour2ms(n) {
-  return n * 1000 * 60 * 60;
+  return Number((n * 3.6e6).toPrecision(12));
 }
 
 function breakDate(d) {

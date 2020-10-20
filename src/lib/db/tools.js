@@ -187,6 +187,27 @@ function insertTransactionJobsAtomic(transaction, db) {
   return true;
 }
 
+function insertTransactionWorktime(transaction, db) {
+  const insert = db.prepare(
+    'INSERT INTO worktime (days, metaSource, metaUsers, d_presence) VALUES (@days, @metaSource, @metaUsers, @d_presence)'
+  );
+
+  const insertMany = db.transaction((jobs) => {
+    for (const job of jobs) {
+      try {
+        insert.run(job);
+      } catch (error) {
+        console.log(job);
+        console.log(error);
+        continue;
+      }
+    }
+  });
+
+  insertMany(transaction);
+  return true;
+}
+
 module.exports = {
   handleProduct,
   handleSource,
@@ -194,4 +215,5 @@ module.exports = {
   insertNewJob,
   insertTransactionJobs,
   insertTransactionJobsAtomic,
+  insertTransactionWorktime,
 };

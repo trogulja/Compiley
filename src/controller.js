@@ -16,6 +16,7 @@ const getFiles = require('./lib/file/getFiles');
 const parseDTI = require('./lib/file/parseDTI');
 const parseEasyjob = require('./lib/file/parseEasyjob');
 const parseWorktime = require('./lib/file/parseWorktime');
+const parseParte = require('./lib/file/parseParte');
 const path = require('path');
 
 async function gatherAll() {
@@ -62,7 +63,7 @@ async function gatherAll() {
       if (group === 'dti') await parseDTI(file, meta, db);
       if (group === 'easyjob') await parseEasyjob(file, meta, db);
       if (group === 'worktime') await parseWorktime(file, meta, db);
-      // if (file.group === 'parte')
+      if (group === 'parte') await parseParte(file, meta, db);
       // if (file.group === '')
 
       currentFile += 1;

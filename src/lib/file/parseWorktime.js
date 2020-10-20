@@ -2,13 +2,14 @@
 
 // #region SetUp
 const XLSX = require('xlsx');
-const Datastore = require('nedb-promises');
 const eh = require('../util/excelHelper');
 const tools = require('../db/tools');
 const { setWith, get } = require('lodash');
 // #endregion
 
 async function parseWorktime(file, meta, db) {
+  const source = tools.handleSource(file, 'worktime', meta, db);
+
   const wb = XLSX.readFile(file.path);
   const ws = wb.Sheets[wb.SheetNames[0]];
   const sheet = XLSX.utils.sheet_to_json(ws);
@@ -16,7 +17,14 @@ async function parseWorktime(file, meta, db) {
   const workTimeRange1 = /.* (?<m>\d+)\/(?<d>\d+)\/(?<y>\d+) - (?<m2>\d+)\/(?<d2>\d+)\/(?<y2>\d+).*/;
   const workTimeRange2 = /.* (?<d>\d+)\.(?<m>\d+)\.(?<y>\d+)\. - (?<d2>\d+)\.(?<m2>\d+)\.(?<y2>\d+)\..*/;
 
-  let razdoblje = Object.values(sheet[0])[0];
+  let razdoblje;
+  try {
+    razdoblje = Object.values(sheet[0])[0];
+  } catch (error) {
+    console.log(error);
+    console.log(file.path);
+    console.log(sheet[0]);
+  }
   let frag;
   if (workTimeRange1.test(razdoblje)) frag = workTimeRange1.exec(razdoblje);
   if (workTimeRange2.test(razdoblje)) frag = workTimeRange2.exec(razdoblje);
@@ -27,6 +35,7 @@ async function parseWorktime(file, meta, db) {
   const month = dateStart.getMonth();
   // console.log(razdoblje, dateStart.toDateString(), dateEnd.toDateString());
 
+  const transactionWorktime = [];
   // console.log(sheet)
   for (const [index, row] of sheet.entries()) {
     const array = Object.values(row);
@@ -44,12 +53,16 @@ async function parseWorktime(file, meta, db) {
     array3.splice(0, 3);
 
     for (const [i, val] of array3.entries()) {
-      const day = new Date(year, month, Number(array2[i]))
-      const dPresence = eh.hour2ms(val)
-      console.log({day, user, dPresence})
+      const date = new Date(year, month, Number(array2[i])).getTime();
+      const days = tools.handleDay(date, meta, db);
+      const d_presence = eh.hour2ms(val);
+      transactionWorktime.push({ days, metaSource: source, metaUsers: user, d_presence });
     }
-
   }
+
+  tools.insertTransactionWorktime(transactionWorktime, db);
+
+  return true;
 }
 
 module.exports = parseWorktime;

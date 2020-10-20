@@ -8,6 +8,7 @@ const fileGroup = {
   worktime: /Dnevni izvještaj m4 \d{2} \d{4}.xlsx?/,
   admin: /Neki regex za admin/,
 };
+const tmpFile = /~\$.+\.xls/i;
 
 function trimFile(file) {
   return {
@@ -49,6 +50,8 @@ async function getFiles(dir, validGroup, originDir = dir) {
           if (fileGroup[el].test(path.basename(filePath))) isValid = el;
         });
 
+        if (tmpFile.test(file)) isValid = false;
+
         if (isValid) {
           const uniqueName = filePath.replace(originDir, '.');
           return {
@@ -82,7 +85,7 @@ async function main(dir, meta) {
     const id = meta.source.rev[r.name];
     if (!id) {
       // TODO - report this is a new file
-      addOutput(output, 'new', r.group, trimFile(r))
+      addOutput(output, 'new', r.group, trimFile(r));
     } else {
       if (
         meta.source.all[id].size >= r.size &&
@@ -90,10 +93,10 @@ async function main(dir, meta) {
         meta.source.all[id].t_modified >= r.t_modified
       ) {
         // TODO - report we have seen this file, but older version
-        addOutput(output, 'all', r.group, trimFile(r))
+        addOutput(output, 'all', r.group, trimFile(r));
       } else {
         // TODO - report this is a new file version
-        addOutput(output, 'new', r.group, trimFile(r))
+        addOutput(output, 'new', r.group, trimFile(r));
       }
     }
   }
