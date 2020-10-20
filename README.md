@@ -55,10 +55,10 @@ Compile data from multiple sources to produce work report
   - [x] solve changes in date/time format
   - [x] db transaction
 - [ ] parse Administracija
-- [ ] parse Parte
+- [x] parse Parte
   - [x] collect data, user is null
-  - [ ] insert one new job per day, get id
-  - [ ] assign job ID to jobsAtomic, insert transaction
+  - [x] insert one new job per day, get id
+  - [x] assign job ID to jobsAtomic, insert transaction
 - [ ] db housekeeping (at the batch end)
   - [ ] helperClaro match with jobsAtomic DTI
     - [ ] standard

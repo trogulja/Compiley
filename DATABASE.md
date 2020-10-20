@@ -42,6 +42,8 @@ Database definitions and column explanations.
 - **second**: `INTEGER`
 - **duration**: `INTEGER`
 - **d_type**: `INTEGER - not null, default 0` *(0: read from source, 1: calculated, 2: calculated from average, 3: assumed, 4: to be determined later)*
+- **timestamp1**: `INTEGER` *(lastRefresh or known timestamp)*
+- **timestamp2**: `INTEGER` *(status change or copy of known timestamp)*
 - **name**: `STRING` *(filename or some other identifier)*
 
 ## metaJobs - need revision for this table
