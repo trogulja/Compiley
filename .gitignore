@@ -110,6 +110,8 @@ db/compiley.db-wal
 db/logClaro.db
 db/logClaro.db-shm
 db/logClaro.db-wal
+db/*.json
+db/*.csv
 
 # Data stuff
 data/2018/

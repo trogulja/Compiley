@@ -17,6 +17,7 @@ const parseDTI = require('./lib/file/parseDTI');
 const parseEasyjob = require('./lib/file/parseEasyjob');
 const parseWorktime = require('./lib/file/parseWorktime');
 const parseParte = require('./lib/file/parseParte');
+const parseAdmin = require('./lib/db/manualAdminImport');
 const path = require('path');
 
 async function gatherAll() {
@@ -64,7 +65,6 @@ async function gatherAll() {
       if (group === 'easyjob') await parseEasyjob(file, meta, db);
       if (group === 'worktime') await parseWorktime(file, meta, db);
       if (group === 'parte') await parseParte(file, meta, db);
-      // if (file.group === '')
 
       currentFile += 1;
       percentageDone = Math.floor((currentFile / totalFiles) * 100);
@@ -72,6 +72,7 @@ async function gatherAll() {
       process.stdout.write(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.${'\033[0G'}`);
     }
   }
+  await parseAdmin(meta, db);
 
   db.close();
 }
