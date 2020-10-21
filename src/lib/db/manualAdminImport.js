@@ -5,6 +5,7 @@ const path = require('path');
 const paths = require('../util/pathHandler');
 const readline = require('readline');
 const { google } = require('googleapis');
+const { get, setWith } = require('lodash');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
@@ -81,21 +82,31 @@ async function mainParser(meta, db) {
         ];
         const datePattern = /(?<d>\d+)\.(?<m>\d+)\.(?<y>\d+)\./;
 
-        const uniqueKlijent = new Set();
-        const uniqueDesk = new Set();
-        const uniqueProizvod = new Set();
+        const unique = {};
         for (const row of rows) {
           if (!datePattern.test(row[2])) console.log(row[2]);
           const dateRaw = datePattern.exec(row[2]);
           const date = new Date(dateRaw.groups.y, dateRaw.groups.m, dateRaw.groups.d);
           const user = meta.users.admin[row[1]];
-          uniqueKlijent.add(row[3]);
-          uniqueDesk.add(row[4]);
-          uniqueProizvod.add(row[5]);
+
+          const klijent = row[3];
+          const desk = row[4];
+          const proizvod = row[5];
+
+          const exists = get(unique, `["${klijent}"]["${desk}"]`, false)
+
+          if (!exists) setWith(unique, `["${klijent}"]["${desk}"]`, new Set(), Object)
+          unique[klijent][desk].add(proizvod)
         }
-        console.log(uniqueKlijent);
-        console.log(uniqueDesk);
-        // console.log(uniqueProizvod);
+        // console.log(JSON.stringify(unique, null, 3));
+        function Set_toJSON(key, value) {
+          if (typeof value === 'object' && value instanceof Set) {
+            return [...value];
+          }
+          return value;
+        }
+
+        await fs.writeFile(path.join(paths.db, 'administracija.json'), JSON.stringify(unique, Set_toJSON, 6) , 'utf-8')
         return true;
         rows.map((row) => {
           // console.log(`${row[0]}, ${row[4]}`);
