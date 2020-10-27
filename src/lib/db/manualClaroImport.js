@@ -1,11 +1,11 @@
+'use strict';
+
 const Database = require('better-sqlite3');
 const path = require('path');
 const paths = require('../util/pathHandler');
-const getMeta = require('./meta');
 const tools = require('./tools');
 
-function main() {
-  const db = new Database(paths.database);
+function main(meta, db) {
   const db2 = new Database(path.join(paths.db, 'logClaro.db'));
 
   const jobs = [
@@ -41,7 +41,6 @@ function main() {
     },
   ];
 
-  const meta = getMeta(db);
   const insert = db.prepare(
     'INSERT INTO helperClaro (type, timestamp, days, filename, channel, metaUsers, pstime, calctime) VALUES (@type, @timestamp, @days, @filename, @channel, @metaUsers, @pstime, @calctime)'
   );
@@ -67,9 +66,8 @@ function main() {
     insertMany(results);
   }
 
-  db.close();
   db2.close();
   return true;
 }
 
-main();
+module.exports = main;

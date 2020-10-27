@@ -108,7 +108,13 @@ async function parseDTI(file, meta, db) {
       if (row.statusName_1 == '3-Spremno Aut.' && row.newStatusId == 1421) ok = true;
       if (row.statusName_1 == '3A-M4-Proces' && row.newStatusId == 1423) ok = true;
       if (row.statusName_1 == '2g-Automatska obrada' && row.newStatusId == 264049) ok = true;
-      if (!ok) console.log(`\n`, 'Name / ID mismatch', file.name, row);
+      if (!ok) {
+        if (row.newStatusId === 0 && row.statusName_1 === '3A-M4-Proces') {
+          row.newStatusId = 1423;
+        } else {
+          console.log(`\n`, 'Name / ID mismatch', file.name, row);
+        }
+      }
     }
 
     const pDate = eh.breakDate(row.lastRefreshed);
@@ -124,7 +130,11 @@ async function parseDTI(file, meta, db) {
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          product: tools.handleProduct({ country, client_group, client, product_group, product: row.deskName }, meta, db),
+          product: tools.handleProduct(
+            { country, client_group, client, product_group, product: row.deskName },
+            meta,
+            db
+          ),
           source: source,
           user: row.refreshedBy,
           name: row.fileHeaderName,
@@ -144,7 +154,11 @@ async function parseDTI(file, meta, db) {
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          product: tools.handleProduct({ country, client_group, client, product_group, product: row.deskName }, meta, db),
+          product: tools.handleProduct(
+            { country, client_group, client, product_group, product: row.deskName },
+            meta,
+            db
+          ),
           source: source,
           user: row.refreshedBy,
           name: row.fileHeaderName,
@@ -205,7 +219,11 @@ async function parseDTI(file, meta, db) {
           hour: pDate.hour,
           minute: pDate.minute,
           second: pDate.second,
-          product: tools.handleProduct({ country, client_group, client, product_group, product: row.deskName }, meta, db),
+          product: tools.handleProduct(
+            { country, client_group, client, product_group, product: row.deskName },
+            meta,
+            db
+          ),
           source: source,
           user: row.refreshedBy,
           name: row.fileHeaderName,

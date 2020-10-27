@@ -1,0 +1,25 @@
+- rows iz adminitracije:
+klijent
+desk
+proizvod
+
+metaKlijenti:
+- zemlja
+- grupa klijenata
+- klijent
+- grupa proizvoda
+- proizvod
+
+# klijent: 24 sata
+- HR, interni, 24h, $desk
+- tihana || knjig. => 24 Posebni proizvodi - knjige
+- budi.in => 24 Budi.IN
+- express => 24 Express
+- autostart => 24 Autostart
+- sport => 24 Sport
+- bingo => 24 bingo
+- njuškalo => Njuškalo (VL)
+- * => 24 New graphics
+
+# klijent: Večernji list
+- HR, interni, VL, $desk

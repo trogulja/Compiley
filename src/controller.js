@@ -18,35 +18,12 @@ const parseEasyjob = require('./lib/file/parseEasyjob');
 const parseWorktime = require('./lib/file/parseWorktime');
 const parseParte = require('./lib/file/parseParte');
 const parseAdmin = require('./lib/db/manualAdminImport');
+const parseClaro = require('./lib/db/manualClaroImport');
 const path = require('path');
 
-async function gatherAll() {
-  const db = database();
-  const meta = getMeta(db);
-
-  // console.log(meta);
-  // db.close();
-  // return true;
-
+async function gatherFiles(meta, db) {
   const dataFolder = path.join(__dirname, '..', 'data');
   const files = await getFiles(dataFolder, meta);
-
-  // console.log(files.new);
-  // return false;
-
-  // Testing specific file
-  // const file = {
-  //   name: '.\\2018\\09\\VL\\Slike VL_2018-09-12-09-05-41.xls',
-  //   path: 'E:\\code\\Apps\\Compiley\\data\\2018\\09\\VL\\Slike VL_2018-09-12-09-05-41.xls',
-  //   size: 10752,
-  //   t_created: 1601152576391.5225,
-  //   t_modified: 1601152576391.5225,
-  //   t_parsed: 1601313389239,
-  // };
-
-  // const results = await parseDTI(file, meta, db);
-  // console.log(results.filter((res) => res.user === 3).filter((res) => res.name.includes('JP019_057')));
-  // return;
 
   let currentFile = 0;
   let percentageDone = 0;
@@ -54,8 +31,6 @@ async function gatherAll() {
   for (const group in files.new) {
     totalFiles += files.new[group].length;
   }
-
-  // console.log(files.new);
 
   for (const group in files.new) {
     for (const file of files.new[group]) {
@@ -72,9 +47,20 @@ async function gatherAll() {
       process.stdout.write(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.${'\033[0G'}`);
     }
   }
+
+  return true;
+}
+
+async function gatherAll() {
+  const db = database();
+  const meta = getMeta(db);
+
+  // await gatherFiles(meta, db);
+  // parseClaro(meta, db);
   await parseAdmin(meta, db);
 
   db.close();
+  return true;
 }
 
 gatherAll();

@@ -1,7 +1,7 @@
 # Compiley
 Compile data from multiple sources to produce work report
 
-# Todo list
+# Parsers
 - [x] getMeta - get known tables
   - [x] metaUsers(source): { source: id } mapping
   - [x] metaJobs: { product: id } mapping
@@ -59,13 +59,23 @@ Compile data from multiple sources to produce work report
   - [x] collect data, user is null
   - [x] insert one new job per day, get id
   - [x] assign job ID to jobsAtomic, insert transaction
-- [ ] db housekeeping (at the batch end)
-  - [ ] helperClaro match with jobsAtomic DTI
-    - [ ] standard
-    - [ ] automatic
-  - [ ] helperClaro match with jobs EasyJob
-  - [ ] days summify
-    - [ ] worktime vs jobs adjust assumed time per day
-    - [ ] resummify days
-    - [ ] report problem inputs
-      - [ ] ignore first in month double inputs
+
+# DB housekeeping
+- [ ] helperClaro match with jobsAtomic DTI
+  - [ ] standard
+  - [ ] automatic
+- [ ] helperClaro match with jobs EasyJob
+- [ ] days summify
+  - [ ] worktime vs jobs adjust assumed time per day
+  - [ ] resummify days
+  - [ ] report problem inputs
+    - [ ] ignore first in month double inputs
+
+# Main logic
+- [x] Controller input
+  - [x] get excel files from folder
+  - [ ] get administration from google sheets
+  - [ ] get claro from api
+- [ ] Controller output
+  - [ ] define API endpoints
+  - [ ] link to excel query

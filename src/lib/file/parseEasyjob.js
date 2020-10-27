@@ -7,7 +7,7 @@ const tools = require('../db/tools');
 const { setWith, get } = require('lodash');
 // #endregion
 function hours2ms(h) {
-  return h * 3.6e+6;
+  return h * 3.6e6;
 }
 
 async function parseEasyjob(file, meta, db) {
@@ -81,14 +81,17 @@ async function parseEasyjob(file, meta, db) {
     const dateRaw = row.date.split('.');
     if (dateRaw.length !== 3) continue;
 
+    const user = meta.users.easyjob[row.user] || null;
+    if (row.user === 'Winona Pilat' || row.user === 'Marianne Neuhold') continue;
+    if (!user) console.log(row);
+    if (!user) continue;
+
     const date = new Date(
       Number(`${dateRaw[2] > 78 ? '19' : '20'}${dateRaw[2]}`),
       Number(dateRaw[1]) - 1,
       Number(dateRaw[0])
     ).getTime();
     const day = tools.handleDay(date, meta, db);
-    const user = meta.users.easyjob[row.user] || null;
-    if (!user) console.log(row);
     if (!row.amount) row.amount = 0;
     if (!row.duration) row.duration = 0;
     row.duration = eh.hour2ms(row.duration);
@@ -106,7 +109,8 @@ async function parseEasyjob(file, meta, db) {
       DigitalProgrammierung: 'coding',
       AutomBilder: 'auto',
       HalbautomBilder: 'halfauto',
-      AnzeigeGestalten: 'standard'
+      AnzeigeGestalten: 'standard',
+      'Fixkosten inkl.Gewinnaufschl. ger.Seiten': 'standard',
     };
     const type = row.type ? meta.types[typeOptions[row.type]] : row.type2 ? meta.types[typeOptions[row.type2]] : false;
 
