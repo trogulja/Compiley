@@ -8,10 +8,10 @@ const known = {};
 
 const klijent_administracija = {
   edukacija: ['trening', 'workshop'],
-  odrzavanje: ['claro', 'dti', 'pamendo', 'kompjuteri', 'monitori', 'ciscenje'],
-  marketing: ['layout navlakuše', 'slike', 'mockupovi'],
+  održavanje: ['claro', 'dti', 'pamendo', 'kompjuteri', 'monitori', 'čišćenje'],
+  marketing: ['layout', 'slike', 'mockup'],
   sastanak: ['interni', 'eksterni'],
-  razvoj: ['web stranice', 'excel', 'aplikacije'],
+  razvoj: ['web', 'excel', 'aplikacije'],
   austrija: ['treba definirati']
 }; // dodati "ništa od navedenog"
 

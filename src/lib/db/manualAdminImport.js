@@ -10,28 +10,12 @@ const tools = require('../db/tools');
 
 const productTable = {
   '24 sata': {
+    id: '24 sata',
     client: '24h',
     defaults: { country: 'HR', client_group: 'interni', client: '24h', product_group: '24h' },
     unmatched: '24 New graphics',
-    deskCheck: true,
-  },
-  'Večernji list': {
-    client: 'VL',
-    defaults: { country: 'HR', client_group: 'interni', client: 'VL', product_group: 'VL' },
-    unmatched: 'New Graphics VL',
-    deskCheck: true,
-  },
-  Administracija: {
-    client: 'administracija',
-  },
-  Austrija: {},
-  Asura: {},
-  'Red Point': {},
-};
-
-function resolveAdministration(table) {
-  const check = {
-    '24h': {
+    useDesk: true,
+    check: {
       '24 Posebni proizvodi - knjige': [/tihana/i, /knjig./i],
       '24 Budi.IN': [/budi.in/i],
       '24 Express': [/express/i],
@@ -40,34 +24,243 @@ function resolveAdministration(table) {
       '24 Bingo': [/bingo/i],
       Njuškalo: [/nju.kalo/i],
     },
-    VL: {
+  },
+  'Večernji list': {
+    id: 'Večernji list',
+    client: 'VL',
+    defaults: { country: 'HR', client_group: 'interni', client: 'VL', product_group: 'VL' },
+    unmatched: 'New Graphics VL',
+    useDesk: true,
+    check: {
       Enigmatika: [/enigmati./i],
       Njuškalo: [/nju.kalo/i],
+      'Unutrasnja VL': [/barbara/i],
       'Obzor VL': [/obzor/i],
-      'Posebni prilozi VL': [/knjiga/i, /oleg/i, /birman/i],
-      Oglasi: [/vesn[au]/i, /mladen/i, /raznon?/i, /marketing/],
       'Max VL': [/max/i],
       'Radost VL': [/radost/i],
       'Panorama VL': [/panorama/i],
       'Nedjelja VL': [/nedjelj[au]/i],
       Parte: [/part[eau]/i],
+      'Posebni prilozi VL': [/knjiga/i, /oleg/i, /birman/i],
+      Oglasi: [/vesn[au]/i, /mladen/i, /raznon?/i, /marketing/],
     },
-  };
+  },
+  Administracija: {
+    id: 'Administracija',
+    client: 'Administracija',
+    defaults: { country: 'HR', client_group: 'interni', client: 'Administracija', product_group: 'Razno' },
+    unmatched: 'Ostalo',
+    useDesk: false,
+    useGroup: true,
+    check: {
+      Razvoj: {
+        Web: [/ogla?s?n?[ae]? plo.[ae]/i, /digitalna plo.a/i, /web plo.a/i, /web str/i, /priprema materijala za web/i],
+        Excel: [/excel/i],
+        Photoshop: [/sample map/i, /akcija/i],
+        Programiranje: [
+          /app/i,
+          /folder.?monitor/i,
+          /folderwatchnotify/i,
+          /compiley/i,
+          /panel/i,
+          /mongodb/i,
+          /vue/i,
+          /jsx/i,
+          /code/i,
+          /debug/i,
+          /scripting/i,
+          /skript/i,
+        ],
+      },
+      Edukacija: {
+        Trening: [/trening/i, /vje[zž]ba/i, /edukacija/i, /tutorial/i, /video/i, /youtube/i, /školica/i, /dokumentac/i],
+        Workshop: [/radionica/i, /predavanje/i],
+      },
+      Sastanak: {
+        Priprema: [/priprema za aus/i],
+        Eksterni: [/sastanak.+(?:adria|barbir)/i, /sits sastanak/i, /meeting/i],
+        Interni: [
+          /godi[šs]nji/i,
+          /sastanak/i,
+          /sastanci/i,
+          /sasat/i,
+          /ssatanak/i,
+          /susret/i,
+          /razgovor/i,
+          /brainstorming/i,
+          /marianne/i,
+        ],
+      },
+      Održavanje: {
+        Amendo: [/amend[ou]/i],
+        Asura: [/asur[ae]/i, /analiza/i, /sobo.ke/i, /tom+y/i, /provjer/i, /CTP/],
+        Claro: [/claro/i, /elpical/i, /priprema.+clar/i],
+        Elvis: [/elvis/i],
+        DTI: [/dti/i],
+        Kompjuteri: [
+          /adobe/i,
+          /kom[op]/i,
+          /instal/i,
+          /outlook/i,
+          /driver/i,
+          /sastavljanje/i,
+          /sređivanje/i,
+          /premi?ještanje/i,
+          /scanner/i,
+          /microsoft/i,
+          /IT/,
+          /setupiranje/i,
+          /internet/i,
+          /shareovi/i,
+        ],
+        Monitori: [/kalibracij/i],
+        Čišćenje: [/aparat/i],
+        'Organizacija rada': [/organizacija (?:posla|rada)/i, /koordinacija/i],
+        Aplikacije: [/trello/i, /slack/i, /skype/i],
+      },
+      Marketing: {
+        Layout: [
+          /indesign/i,
+          /il+ustrator/i,
+          /čestitka/i,
+          /dizajn/i,
+          /prezentacijsk/i,
+          /uput/i,
+          /kišobran/i,
+          /layout/i,
+          /nacrti/i,
+        ],
+        Slike: [/obrada slike/i],
+      },
+      Austrija: {
+        Pamela: [/pamela/i, /skillsplatform/i],
+        Wien: [
+          /wien/i,
+          /active beauty/i,
+          /beč/i,
+          /diva/i,
+          /rapid/i,
+          /sport ?magazin/i,
+          /sportaktiv/i,
+          /tortenmag/i,
+          /miss/i,
+          /klipp/i,
+        ],
+        Graz: [/graz/i, /diepresse/i, /austrija/i, /monat/i, /styria media/i],
+      },
+      Razno: {
+        Inteko: [/inteko/i],
+        Konzum: [/konzum/i],
+        Pošta: [/pošta/i],
+        SanMet: [/san.?met/i],
+        Start: [/start/i],
+        TIZG: [/tizg/i],
+        Emmezeta: [/em+ez+et+a/i],
+        Administracija: [
+          /unos admin/i,
+          /ured/i,
+          /easy ?job/i,
+          /e.?mail/i,
+          /adm[in][nsi]/i,
+          /as?ministra/i,
+          /dminis/i,
+          /Mail/,
+          /nabavka/i,
+        ],
+        Praksa: [/student/i],
+        Sistematski: [/sistematski/i, /medikol/i],
+        Adriamedia: [/adriamed/i],
+        BudiIn: [/budi.in/i],
+        Njuškalo: [/nju[šs]kalo/i],
+      },
+    },
+  },
+  Asura: {
+    id: 'Asura',
+    client: 'TIZG',
+    defaults: { country: 'HR', client_group: 'interni', client: 'TIZG', product_group: 'Asura' },
+    unmatched: 'Asura',
+    useDesk: false,
+    check: {
+      Asura: [/.*/],
+    },
+  },
+  'Red Point': {
+    id: 'Red Point',
+    client: 'RP',
+    defaults: { country: 'HR', client_group: 'interni', client: 'RP', product_group: 'RP' },
+    unmatched: 'Razno',
+    useDesk: false,
+    check: {
+      Zubak: [/zubak/i],
+      Bjelovarski: [/bjelov/i],
+      Pošta: [/po[sš]ta/i],
+    }
+  },
+  'Edukacija': {
+    id: 'Administracija',
+    client: 'Administracija',
+    defaults: { country: 'HR', client_group: 'interni', client: 'Administracija', product_group: 'Edukacija' },
+    unmatched: 'Trening',
+    useDesk: false,
+    check: {
+      Workshop: [/predavanje/i]
+    }
+  },
+  'Eksterni klijent': {
+    id: 'Eksterni klijent',
+    client: 'Eksterni klijent',
+    defaults: { country: 'HR', client_group: 'eksterni', client: 'Red Point', product_group: 'Red Point' }
+  }
+};
 
-  if (!check[table.client]) throw new Error(`Unknown client "${table.client}" in resolveAdministration()!`);
+function resolveAdministration(table) {
+  if (!table.check) throw new Error(`Unknown client "${table.client}" in resolveAdministration()!`);
 
-  let matched = false;
-  for (const product in check[table.client]) {
-    if (matched) break;
-    for (const regex of check[table.client][product]) {
-      if (regex.test(string)) matched = product;
-      if (matched) break;
+  if (table.useDesk) {
+    if (table.desk && table.desk !== '') {
+      return { ...table.defaults, product: table.desk };
     }
   }
 
+  let matched = false;
+  let group = false;
+
+  if (table.useGroup) {
+    for (const product_group in table.check) {
+      if (matched) break;
+      for (const product in table.check[product_group]) {
+        if (matched) break;
+        for (const regex of table.check[product_group][product]) {
+          if (regex.test(table.product)) {
+            matched = product;
+            group = product_group;
+            break;
+          }
+        }
+      }
+    }
+  } else {
+    for (const product in table.check) {
+      if (matched) break;
+      for (const regex of table.check[product]) {
+        if (regex.test(table.product)) {
+          matched = product;
+          break;
+        }
+      }
+    }
+  }
+
+  // Overwrites - fix some common input errors
   if (table.client === '24h' && matched === 'Njuškalo')
     return { ...productTable['Večernji list'].defaults, product: matched };
-  return { ...table.defaults, product: matched || table.unmatched };
+
+  if (group) {
+    return { ...table.defaults, product_group: group, product: matched };
+  } else {
+    return { ...table.defaults, product: matched || table.unmatched };
+  }
 }
 
 function handleAmount(o) {
@@ -144,36 +337,21 @@ async function mainParser(meta, db) {
       });
       const rows = res.data.values;
       if (rows.length) {
-        // [
-        //   [0]  'vremenska'  '18.5.2017. 15:59:54',
-        //   [1]  'ime'        'Karlo Toth',
-        //   [2]  'datum'      '18.5.2017.',
-        //   [3]  'klijent'    '24 sata',
-        //   [4]  'desk'       '',
-        //   [5]  'proizvod'   'Budi IN CHIC',
-        //   [6]  'sn'         '8',
-        //   [7]  'st'         '4:20:00',
-        //   [8]  'cn'         '',
-        //   [9]  'ct'         '',
-        //  [10]  'on'         '',
-        //  [11]  'ot'         '',
-        //  [12]  'opis'       'BUDI IN EDITORIAL CHIC'
-        // ]
-        const columns = [
-          'vremenska',
-          'ime',
-          'datum',
-          'klijent',
-          'desk',
-          'proizvod',
-          'sn',
-          'st',
-          'cn',
-          'ct',
-          'on',
-          'ot',
-          'opis',
-        ];
+        /** row cheat sheet
+         *   [0]  'vremenska'  '18.5.2017. 15:59:54',
+         *   [1]  'ime'        'Karlo Toth',
+         *   [2]  'datum'      '18.5.2017.',
+         *   [3]  'klijent'    '24 sata',
+         *   [4]  'desk'       '',
+         *   [5]  'proizvod'   'Budi IN CHIC',
+         *   [6]  'sn'         '8',
+         *   [7]  'st'         '4:20:00',
+         *   [8]  'cn'         '',
+         *   [9]  'ct'         '',
+         *  [10]  'on'         '',
+         *  [11]  'ot'         '',
+         *  [12]  'opis'       'BUDI IN EDITORIAL CHIC'
+         */
         const datePattern = /(?<d>\d+)\.(?<m>\d+)\.(?<y>\d+)\./;
         const durationPattern = /(?<h>\d+)\:(?<m>\d+)\:(?<s>\d+)/;
 
@@ -191,6 +369,9 @@ async function mainParser(meta, db) {
           if (!row[5] || row[5] === '') throw new Error("What do you mean, there's no row[5] (proizvod)?");
           if (!productTable[row[3]]) throw new Error(`What do you mean, there's no productTable[${row[3]}]?`);
           let productRaw = { ...productTable[row[3]], client: row[3], desk: row[4], product: row[5] };
+          if (row[3] === 'Austrija') {
+            productRaw = { ...productTable['Administracija'], client: 'Administracija', desk: row[4], product: row[5] };
+          }
           const product = resolveAdministration(productRaw);
 
           const typeRaw = { standard: false, cutout: false, other: false };
@@ -218,14 +399,6 @@ async function mainParser(meta, db) {
             }
           }
 
-          // const typeRaw = {
-          //   standard: {
-          //     amount: 0,
-          //     duration: 0
-          //   },
-          //   cutout:
-          // }
-
           // day -> product -> user -> type
           console.log({ day, product, user, type });
           // setWith(output, `[${day}][${product}][${user}][${type}]`, )
@@ -245,98 +418,6 @@ async function mainParser(meta, db) {
 
         await fs.writeFile(path.join(paths.db, 'administracija.json'), JSON.stringify(unique, Set_toJSON, 6), 'utf-8');
         return true;
-        rows.map((row) => {
-          // console.log(`${row[0]}, ${row[4]}`);
-          let tmpObj = {};
-          console.log(row);
-          row.map((item, i) => {
-            if (item.length > 0) {
-              if (i == 0) {
-                let datetime = item.split(' ', 2);
-                let date = datetime[0].split('.', 3);
-                let time = datetime[1].split(':', 3);
-                item = new Date(
-                  Number(date[2]),
-                  Number(date[1]) - 1,
-                  Number(date[0]),
-                  Number(time[0]),
-                  Number(time[1]),
-                  Number(time[2])
-                );
-              } else if (i == 1) {
-                if (getKey(userNames, item)) item = getKey(userNames, item);
-              } else if (i == 2) {
-                let date = item.split('.', 3);
-                item = parseInt('' + pad(Number(date[2]), 4) + pad(Number(date[1]), 2) + pad(Number(date[0]), 2));
-              } else if (i == 3) {
-                if (item == '24 sata') item = '24h';
-                if (item == 'Večernji list') item = 'VL';
-                if (item == 'Poslovni dnevnik') item = 'PD';
-              } else if (i == 6 || i == 8 || i == 10) {
-                item = Number(item);
-              } else if (i == 7 || i == 9 || i == 11) {
-                let time = item.split(':', 3);
-                item = Number(time[0]) * 60 * 60 + Number(time[1]) * 60 + Number(time[2]);
-              }
-              tmpObj[columns[i]] = item;
-            }
-          });
-
-          if (typeof tmpObj.sn == 'number' || typeof tmpObj.st == 'number') {
-            let tmpObjStd = {
-              date: tmpObj.datum,
-              type: 'Standard',
-              user: tmpObj.ime,
-              source: 'Administracija',
-              client: tmpObj.klijent,
-              product: tmpObj.proizvod,
-              zone: 'HR',
-            };
-            tmpObjStd.amount = tmpObj.sn ? tmpObj.sn : 0;
-            tmpObjStd.duration = tmpObj.st ? tmpObj.st : 0;
-            if (tmpObj.desk) tmpObjStd.desk = tmpObj.desk;
-            if (tmpObj.opis) tmpObjStd.comment = tmpObj.opis;
-            doner.push(tmpObjStd);
-            br1 += 1;
-          }
-          if (typeof tmpObj.cn == 'number' || typeof tmpObj.ct == 'number') {
-            let tmpObjCut = {
-              date: tmpObj.datum,
-              type: 'Cutout',
-              user: tmpObj.ime,
-              source: 'Administracija',
-              client: tmpObj.klijent,
-              product: tmpObj.proizvod,
-              zone: 'HR',
-            };
-            tmpObjCut.amount = tmpObj.cn ? tmpObj.cn : 0;
-            tmpObjCut.duration = tmpObj.ct ? tmpObj.ct : 0;
-            if (tmpObj.desk) tmpObjCut.desk = tmpObj.desk;
-            if (tmpObj.opis) tmpObjCut.comment = tmpObj.opis;
-            doner.push(tmpObjCut);
-            br2 += 1;
-          }
-          if (typeof tmpObj.on == 'number' || typeof tmpObj.ot == 'number') {
-            let tmpObjOst = {
-              date: tmpObj.datum,
-              type: 'Razno',
-              user: tmpObj.ime,
-              source: 'Administracija',
-              client: tmpObj.klijent,
-              product: tmpObj.proizvod,
-              zone: 'HR',
-            };
-            tmpObjOst.amount = tmpObj.on ? tmpObj.on : 0;
-            tmpObjOst.duration = tmpObj.ot ? tmpObj.ot : 0;
-            if (tmpObj.desk) tmpObjOst.desk = tmpObj.desk;
-            if (tmpObj.opis) tmpObjOst.comment = tmpObj.opis;
-            doner.push(tmpObjOst);
-            br3 += 1;
-          }
-        });
-        // console.log('doner:', doner.length);
-        // console.log('rows:', rows.length);
-        // console.log('br1:', br1, 'br2:', br2, 'br3:', br3, 'sum:', br1 + br2 + br3);
       } else {
         console.log('No data found.');
       }
