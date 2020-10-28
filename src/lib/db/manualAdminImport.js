@@ -6,6 +6,85 @@ const paths = require('../util/pathHandler');
 const readline = require('readline');
 const { google } = require('googleapis');
 const { get, setWith } = require('lodash');
+const tools = require('../db/tools');
+
+const productTable = {
+  '24 sata': {
+    client: '24h',
+    defaults: { country: 'HR', client_group: 'interni', client: '24h', product_group: '24h' },
+    unmatched: '24 New graphics',
+    deskCheck: true,
+  },
+  'Večernji list': {
+    client: 'VL',
+    defaults: { country: 'HR', client_group: 'interni', client: 'VL', product_group: 'VL' },
+    unmatched: 'New Graphics VL',
+    deskCheck: true,
+  },
+  Administracija: {
+    client: 'administracija',
+  },
+  Austrija: {},
+  Asura: {},
+  'Red Point': {},
+};
+
+function resolveAdministration(table) {
+  const check = {
+    '24h': {
+      '24 Posebni proizvodi - knjige': [/tihana/i, /knjig./i],
+      '24 Budi.IN': [/budi.in/i],
+      '24 Express': [/express/i],
+      '24 Autostart': [/autostart/i],
+      '24 Sport': [/sport/i],
+      '24 Bingo': [/bingo/i],
+      Njuškalo: [/nju.kalo/i],
+    },
+    VL: {
+      Enigmatika: [/enigmati./i],
+      Njuškalo: [/nju.kalo/i],
+      'Obzor VL': [/obzor/i],
+      'Posebni prilozi VL': [/knjiga/i, /oleg/i, /birman/i],
+      Oglasi: [/vesn[au]/i, /mladen/i, /raznon?/i, /marketing/],
+      'Max VL': [/max/i],
+      'Radost VL': [/radost/i],
+      'Panorama VL': [/panorama/i],
+      'Nedjelja VL': [/nedjelj[au]/i],
+      Parte: [/part[eau]/i],
+    },
+  };
+
+  if (!check[table.client]) throw new Error(`Unknown client "${table.client}" in resolveAdministration()!`);
+
+  let matched = false;
+  for (const product in check[table.client]) {
+    if (matched) break;
+    for (const regex of check[table.client][product]) {
+      if (regex.test(string)) matched = product;
+      if (matched) break;
+    }
+  }
+
+  if (table.client === '24h' && matched === 'Njuškalo')
+    return { ...productTable['Večernji list'].defaults, product: matched };
+  return { ...table.defaults, product: matched || table.unmatched };
+}
+
+function handleAmount(o) {
+  let output = 0;
+  if (o.n === '') {
+    if (o.t1) {
+      if (o.t1 === '' && o.n1 !== '') output = Number(o.n1);
+    } else if (o.t2) {
+      if (o.t2 === '' && o.n2 !== '') output = Number(o.n2);
+    }
+  } else {
+    output = Number(o.n);
+  }
+  if (isNaN(output)) throw new Error(`handleAmount was unable to resolve amount: ${JSON.stringify(o)}`);
+  if (!output) return 1;
+  return output;
+}
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
@@ -65,6 +144,21 @@ async function mainParser(meta, db) {
       });
       const rows = res.data.values;
       if (rows.length) {
+        // [
+        //   [0]  'vremenska'  '18.5.2017. 15:59:54',
+        //   [1]  'ime'        'Karlo Toth',
+        //   [2]  'datum'      '18.5.2017.',
+        //   [3]  'klijent'    '24 sata',
+        //   [4]  'desk'       '',
+        //   [5]  'proizvod'   'Budi IN CHIC',
+        //   [6]  'sn'         '8',
+        //   [7]  'st'         '4:20:00',
+        //   [8]  'cn'         '',
+        //   [9]  'ct'         '',
+        //  [10]  'on'         '',
+        //  [11]  'ot'         '',
+        //  [12]  'opis'       'BUDI IN EDITORIAL CHIC'
+        // ]
         const columns = [
           'vremenska',
           'ime',
@@ -81,24 +175,67 @@ async function mainParser(meta, db) {
           'opis',
         ];
         const datePattern = /(?<d>\d+)\.(?<m>\d+)\.(?<y>\d+)\./;
+        const durationPattern = /(?<h>\d+)\:(?<m>\d+)\:(?<s>\d+)/;
 
-        const unique = {};
+        const output = {};
         for (const row of rows) {
           if (!datePattern.test(row[2])) console.log(row[2]);
           const dateRaw = datePattern.exec(row[2]);
-          const date = new Date(dateRaw.groups.y, dateRaw.groups.m, dateRaw.groups.d);
+          const date = new Date(dateRaw.groups.y, dateRaw.groups.m, dateRaw.groups.d).getTime();
+          const day = tools.handleDay(date, meta, db);
+
           const user = meta.users.admin[row[1]];
+          if (!user) throw new Error(`What do you mean, there's no user ${row[1]} in meta.users.admin?`);
 
-          const klijent = row[3];
-          const desk = row[4];
-          const proizvod = row[5];
+          if (!row[3] || row[3] === '') throw new Error("What do you mean, there's no row[3] (klijent)?");
+          if (!row[5] || row[5] === '') throw new Error("What do you mean, there's no row[5] (proizvod)?");
+          if (!productTable[row[3]]) throw new Error(`What do you mean, there's no productTable[${row[3]}]?`);
+          let productRaw = { ...productTable[row[3]], client: row[3], desk: row[4], product: row[5] };
+          const product = resolveAdministration(productRaw);
 
-          const exists = get(unique, `["${klijent}"]["${desk}"]`, false)
+          const typeRaw = { standard: false, cutout: false, other: false };
+          if (durationPattern.test(row[7])) {
+            let dRaw = durationPattern.exec(row[7]);
+            let duration = Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3;
+            let amount = handleAmount({ n: row[6], t1: row[9], n1: row[8], t2: row[11], n2: row[10] });
+            typeRaw.standard = { duration, amount };
+          }
+          if (durationPattern.test(row[9])) {
+            let dRaw = durationPattern.exec(row[9]);
+            let duration = Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3;
+            let amount = handleAmount({ n: row[9], t1: row[7], n1: row[6], t2: row[11], n2: row[10] });
+            typeRaw.cutout = { duration, amount };
+          }
+          if (durationPattern.test(row[11])) {
+            let dRaw = durationPattern.exec(row[11]);
+            let duration = Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3;
+            let amount = handleAmount({ n: row[11], t1: row[7], n1: row[6], t2: row[9], n2: row[8] });
+            typeRaw.other = { duration, amount };
+          }
 
-          if (!exists) setWith(unique, `["${klijent}"]["${desk}"]`, new Set(), Object)
-          unique[klijent][desk].add(proizvod)
+          for (const t in typeRaw) {
+            if (typeRaw[t]) {
+            }
+          }
+
+          // const typeRaw = {
+          //   standard: {
+          //     amount: 0,
+          //     duration: 0
+          //   },
+          //   cutout:
+          // }
+
+          // day -> product -> user -> type
+          console.log({ day, product, user, type });
+          // setWith(output, `[${day}][${product}][${user}][${type}]`, )
+          // const exists = get(output, `[${day}][${product}][${user}][${type}]`, false);
+
+          // if (!exists) setWith(output, `["${klijent}"]["${desk}"]`, new Set(), Object);
+          // output[klijent][desk].add(proizvod);
         }
         // console.log(JSON.stringify(unique, null, 3));
+        return;
         function Set_toJSON(key, value) {
           if (typeof value === 'object' && value instanceof Set) {
             return [...value];
@@ -106,7 +243,7 @@ async function mainParser(meta, db) {
           return value;
         }
 
-        await fs.writeFile(path.join(paths.db, 'administracija.json'), JSON.stringify(unique, Set_toJSON, 6) , 'utf-8')
+        await fs.writeFile(path.join(paths.db, 'administracija.json'), JSON.stringify(unique, Set_toJSON, 6), 'utf-8');
         return true;
         rows.map((row) => {
           // console.log(`${row[0]}, ${row[4]}`);

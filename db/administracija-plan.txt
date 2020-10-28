@@ -23,3 +23,14 @@ metaKlijenti:
 
 # klijent: Večernji list
 - HR, interni, VL, $desk
+- Enigmatika => enigmati.
+- Njuškalo => nju.kalo
+- Obzor VL => obzor
+- Posebni prilozi VL => knjiga, oleg, birman
+- Oglasi => vesn[au], mladen, raznon?, marketing
+- Max VL => max
+- Radost VL => radost
+- Panorama VL => panorama
+- Nedjelja VL => nedjelj[au]
+- Parte => part[eau]
+- New Graphics VL => *
