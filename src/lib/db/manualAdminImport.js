@@ -15,6 +15,7 @@ const productTable = {
     defaults: { country: 'HR', client_group: 'interni', client: '24h', product_group: '24h' },
     unmatched: '24 New graphics',
     useDesk: true,
+    types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
     check: {
       '24 Posebni proizvodi - knjige': [/tihana/i, /knjig./i],
       '24 Budi.IN': [/budi.in/i],
@@ -31,6 +32,7 @@ const productTable = {
     defaults: { country: 'HR', client_group: 'interni', client: 'VL', product_group: 'VL' },
     unmatched: 'New Graphics VL',
     useDesk: true,
+    types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
     check: {
       Enigmatika: [/enigmati./i],
       Njuškalo: [/nju.kalo/i],
@@ -52,6 +54,7 @@ const productTable = {
     unmatched: 'Ostalo',
     useDesk: false,
     useGroup: true,
+    types: { standard: 'var', cutout: 'var', other: 'var' },
     check: {
       Razvoj: {
         Web: [/ogla?s?n?[ae]? plo.[ae]/i, /digitalna plo.a/i, /web plo.a/i, /web str/i, /priprema materijala za web/i],
@@ -175,12 +178,37 @@ const productTable = {
       },
     },
   },
+  Austrija: {
+    id: 'Austrija',
+    client: 'Austrija',
+    defaults: { country: 'HR', client_group: 'interni', client: 'Administracija', product_group: 'Austrija' },
+    unmatched: 'Graz',
+    useDesk: false,
+    types: { standard: 'var', cutout: 'var', other: 'var' },
+    check: {
+      Pamela: [/pamela/i, /skillsplatform/i],
+      Wien: [
+        /wien/i,
+        /active beauty/i,
+        /beč/i,
+        /diva/i,
+        /rapid/i,
+        /sport ?magazin/i,
+        /sportaktiv/i,
+        /tortenmag/i,
+        /miss/i,
+        /klipp/i,
+      ],
+      Graz: [/graz/i, /diepresse/i, /austrija/i, /monat/i, /styria media/i],
+    },
+  },
   Asura: {
     id: 'Asura',
     client: 'TIZG',
     defaults: { country: 'HR', client_group: 'interni', client: 'TIZG', product_group: 'Asura' },
     unmatched: 'Asura',
     useDesk: false,
+    types: { standard: 'var', cutout: 'var', other: 'var' },
     check: {
       Asura: [/.*/],
     },
@@ -191,28 +219,111 @@ const productTable = {
     defaults: { country: 'HR', client_group: 'interni', client: 'RP', product_group: 'RP' },
     unmatched: 'Razno',
     useDesk: false,
+    types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
     check: {
       Zubak: [/zubak/i],
       Bjelovarski: [/bjelov/i],
       Pošta: [/po[sš]ta/i],
-    }
+    },
   },
-  'Edukacija': {
+  Edukacija: {
     id: 'Administracija',
     client: 'Administracija',
     defaults: { country: 'HR', client_group: 'interni', client: 'Administracija', product_group: 'Edukacija' },
     unmatched: 'Trening',
     useDesk: false,
+    types: { standard: 'var', cutout: 'var', other: 'var' },
     check: {
-      Workshop: [/predavanje/i]
-    }
+      Workshop: [/predavanje/i],
+    },
   },
   'Eksterni klijent': {
     id: 'Eksterni klijent',
     client: 'Eksterni klijent',
-    defaults: { country: 'HR', client_group: 'eksterni', client: 'Red Point', product_group: 'Red Point' }
-  }
+    defaults: { country: 'HR', client_group: 'eksterni', client: 'Eksterni', product_group: 'Razno' },
+    unmatched: 'Ostalo',
+    useDesk: true,
+    useGroup: false,
+    types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
+    check: {
+      'Red Point': [/red.?point/i, /bjelovarski/i],
+      '7dnevno': [/7.?dnevno/i],
+      'Soboške novine': [/sobo[sš]k[aei]/i],
+      Pixsell: [/pixsel/i],
+    },
+  },
+  'Interni klijent': {
+    id: 'Interni klijent',
+    client: 'RP',
+    defaults: { country: 'HR', client_group: 'interni', client: 'RP', product_group: 'RP' },
+    unmatched: 'Razno',
+    useDesk: false,
+    types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
+    check: {
+      Bjelovarski: [/bjelov/i],
+    },
+  },
+  'Poslovni dnevnik': {
+    id: 'Poslovni dnevnik',
+    client: 'PD',
+    defaults: { country: 'HR', client_group: 'interni', client: 'PD', product_group: 'PD' },
+    unmatched: 'Dnevnik',
+    useDesk: true,
+    types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
+    check: {
+      Dnevnik: [/.+/i],
+    },
+  },
+  Pixsell: {
+    id: 'Pixsell',
+    client: 'Pixsell',
+    defaults: { country: 'HR', client_group: 'interni', client: 'Pixsell', product_group: 'Pixsell' },
+    unmatched: 'Pixsell',
+    useDesk: true,
+    types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
+    check: {
+      Pixsell: [/.+/i],
+    },
+  },
 };
+function humanFileSize(bytes, si = false, dp = 1) {
+  const thresh = si ? 1000 : 1024;
+  if (Math.abs(bytes) < thresh) {
+    return bytes + ' B';
+  }
+  const units = si
+    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+  let u = -1;
+  const r = 10 ** dp;
+  do {
+    bytes /= thresh;
+    ++u;
+  } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+  return bytes.toFixed(dp) + ' ' + units[u];
+}
+function roughSizeOfObject(object) {
+  var objectList = [];
+  var stack = [object];
+  var bytes = 0;
+  while (stack.length) {
+    var value = stack.pop();
+    if (typeof value === 'boolean') {
+      bytes += 4;
+    } else if (typeof value === 'string') {
+      bytes += value.length * 2;
+    } else if (typeof value === 'number') {
+      bytes += 8;
+    } else if (typeof value === 'object' && objectList.indexOf(value) === -1) {
+      objectList.push(value);
+      for (var i in value) {
+        stack.push(value[i]);
+      }
+    }
+  }
+  return bytes;
+  // return humanFileSize(bytes);
+}
 
 function resolveAdministration(table) {
   if (!table.check) throw new Error(`Unknown client "${table.client}" in resolveAdministration()!`);
@@ -353,10 +464,27 @@ async function mainParser(meta, db) {
          *  [12]  'opis'       'BUDI IN EDITORIAL CHIC'
          */
         const datePattern = /(?<d>\d+)\.(?<m>\d+)\.(?<y>\d+)\./;
-        const durationPattern = /(?<h>\d+)\:(?<m>\d+)\:(?<s>\d+)/;
+        const durationPattern = /(?<h>\d+)\:(?<m>\d+)(?:\:(?<s>\d+))?/;
 
         const output = {};
+        const outputSize = roughSizeOfObject(rows);
+        const outputDate = new Date().getTime();
+        let index = 0;
+        console.log(`Retreived ${humanFileSize(outputSize)} from google sheets...`);
+        const metaSource = tools.handleSource(
+          {
+            name: 'google/administracija',
+            size: outputSize,
+            t_created: outputDate,
+            t_modified: outputDate,
+            t_parsed: outputDate,
+          },
+          'administracija',
+          meta,
+          db
+        );
         for (const row of rows) {
+          index += 1;
           if (!datePattern.test(row[2])) console.log(row[2]);
           const dateRaw = datePattern.exec(row[2]);
           const date = new Date(dateRaw.groups.y, dateRaw.groups.m, dateRaw.groups.d).getTime();
@@ -365,50 +493,133 @@ async function mainParser(meta, db) {
           const user = meta.users.admin[row[1]];
           if (!user) throw new Error(`What do you mean, there's no user ${row[1]} in meta.users.admin?`);
 
-          if (!row[3] || row[3] === '') throw new Error("What do you mean, there's no row[3] (klijent)?");
-          if (!row[5] || row[5] === '') throw new Error("What do you mean, there's no row[5] (proizvod)?");
-          if (!productTable[row[3]]) throw new Error(`What do you mean, there's no productTable[${row[3]}]?`);
-          let productRaw = { ...productTable[row[3]], client: row[3], desk: row[4], product: row[5] };
-          if (row[3] === 'Austrija') {
-            productRaw = { ...productTable['Administracija'], client: 'Administracija', desk: row[4], product: row[5] };
+          if (!row[3] || row[3] === '') {
+            console.log(row);
+            throw new Error("What do you mean, there's no row[3] (klijent)?");
           }
-          const product = resolveAdministration(productRaw);
+          if (!row[5] || row[5] === '') {
+            if (row[4] && row[4] !== '') {
+              row[5] = row[4];
+            } else {
+              console.log(row);
+              throw new Error("What do you mean, there's no row[5] (proizvod)?");
+            }
+          }
+          if (!productTable[row[3]]) {
+            console.log(row);
+            throw new Error(`What do you mean, there's no productTable["${row[3]}"]?`);
+          }
+          let productRaw = { ...productTable[row[3]], client: row[3], desk: row[4], product: row[5] };
+          const product = tools.handleProduct(resolveAdministration(productRaw), meta, db);
 
           const typeRaw = { standard: false, cutout: false, other: false };
-          if (durationPattern.test(row[7])) {
+          if (durationPattern.test(row[7]) || (row[6] && row[6] !== '')) {
             let dRaw = durationPattern.exec(row[7]);
-            let duration = Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3;
-            let amount = handleAmount({ n: row[6], t1: row[9], n1: row[8], t2: row[11], n2: row[10] });
+            let duration = dRaw
+              ? Number(dRaw.groups.h || 0) * 36e5 + Number(dRaw.groups.m || 0) * 6e4 + Number(dRaw.groups.s || 0) * 1e3
+              : null;
+            let amount = handleAmount({ n: row[6], t1: row[9], n1: row[8], t2: row[11], n2: row[10], raw: row });
             typeRaw.standard = { duration, amount };
           }
-          if (durationPattern.test(row[9])) {
+          if (durationPattern.test(row[9]) || (row[8] && row[8] !== '')) {
             let dRaw = durationPattern.exec(row[9]);
-            let duration = Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3;
-            let amount = handleAmount({ n: row[9], t1: row[7], n1: row[6], t2: row[11], n2: row[10] });
+            let duration = dRaw
+              ? Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3
+              : null;
+            let amount = handleAmount({ n: row[8], t1: row[7], n1: row[6], t2: row[11], n2: row[10], raw: row });
             typeRaw.cutout = { duration, amount };
           }
-          if (durationPattern.test(row[11])) {
+          if (durationPattern.test(row[11]) || (row[10] && row[10] !== '')) {
             let dRaw = durationPattern.exec(row[11]);
-            let duration = Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3;
-            let amount = handleAmount({ n: row[11], t1: row[7], n1: row[6], t2: row[9], n2: row[8] });
+            let duration = dRaw
+              ? Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3
+              : null;
+            let amount = handleAmount({ n: row[10], t1: row[7], n1: row[6], t2: row[9], n2: row[8], raw: row });
             typeRaw.other = { duration, amount };
           }
 
+          // Provjera
+          // console.log(row, product);
+          function ms2h(ms) {
+            if (!ms) ms = 0;
+            let h = Math.floor(ms / 36e5);
+            let m = Math.floor((ms / 6e4) % 60);
+            let s = Math.floor((ms / 1e3) % 60);
+            // h = h < 10 ? `0${h}` : `${h}`;
+            m = m < 10 ? `0${m}` : `${m}`;
+            s = s < 10 ? `0${s}` : `${s}`;
+            return `${h}:${m}:${s}`;
+          }
+          function checkDurAm(type, typeRaw, row) {
+            let a1 = '' + typeRaw[type].amount;
+            let d1 = ms2h(typeRaw[type].duration);
+            let a2;
+            let d2;
+            if (type === 'standard') {
+              a2 = row[6];
+              d2 = row[7];
+            }
+            if (type === 'cutout') {
+              a2 = row[8];
+              d2 = row[9];
+            }
+            if (type === 'other') {
+              a2 = row[10];
+              d2 = row[11];
+            }
+            // compensation
+            if (!d2) d2 = '';
+            if (a2 === '0') a2 = '';
+            if (d2 === '0') d2 = '';
+            if (a1 === '1' && a2 === '') a1 = '';
+            if (d1 === '0:00:00' && d2 === '') d1 = '';
+
+            if (d1 === d2 && a1 === a2) return true;
+
+            console.log({ a1, a2, d1, d2 });
+            console.log(typeRaw, row);
+            console.log();
+            return false;
+          }
+
           for (const t in typeRaw) {
-            if (typeRaw[t]) {
+            if (typeRaw[t].duration || typeRaw[t].amount) {
+              // checkDurAm(t, typeRaw, row);
+              const type = meta.types[productRaw.types[t]];
+              if (!type) throw new Error(`What do you mean, there is no "${productRaw.types[t]}" type in meta?`);
+              const amount = typeRaw[t].amount + get(output, `[${day}][${product}][${user}][${type}].amount`, 0);
+              const duration = typeRaw[t].duration + get(output, `[${day}][${product}][${user}][${type}].duration`, 0);
+              if (get(output, `[${day}][${product}][${user}][${type}].index`, false)) console.log('check this');
+              setWith(output, `[${day}][${product}][${user}][${type}]`, { id: index, amount, duration }, Object);
             }
           }
 
           // day -> product -> user -> type
-          console.log({ day, product, user, type });
-          // setWith(output, `[${day}][${product}][${user}][${type}]`, )
           // const exists = get(output, `[${day}][${product}][${user}][${type}]`, false);
 
           // if (!exists) setWith(output, `["${klijent}"]["${desk}"]`, new Set(), Object);
           // output[klijent][desk].add(proizvod);
         }
         // console.log(JSON.stringify(unique, null, 3));
-        return;
+        console.log(`Parsed ${humanFileSize(roughSizeOfObject(output))} in output object...`);
+
+        const transactionJobs = [];
+        for (const days in output) {
+          for (const metaJobs in output[days]) {
+            for (const metaUsers in output[days][metaJobs]) {
+              for (const metaTypes in output[days][metaJobs][metaUsers]) {
+                const amount = output[days][metaJobs][metaUsers][metaTypes].amount;
+                const duration = output[days][metaJobs][metaUsers][metaTypes].duration;
+                const d_type = 0;
+                transactionJobs.push({ days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type });
+              }
+            }
+          }
+        }
+        tools.insertTransactionJobs(transactionJobs, db);
+
+        return true;
+
         function Set_toJSON(key, value) {
           if (typeof value === 'object' && value instanceof Set) {
             return [...value];

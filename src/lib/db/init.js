@@ -206,6 +206,7 @@ function checkDbTableContent(db) {
       { id: 9, group: 'admin', name: 'briefing' },
       { id: 10, group: 'admin', name: 'project' },
       { id: 11, group: 'admin', name: 'coding' },
+      { id: 12, group: 'admin', name: 'var' },
     ],
     metaPrintTypes: [
       { id: 1, type: 'coldset', color_profile: 'Unknown' },
