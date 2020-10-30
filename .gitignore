@@ -72,6 +72,9 @@ typings/
 .env
 .env.test
 
+# webpack bundler cache
+.webpack
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 
