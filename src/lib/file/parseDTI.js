@@ -39,9 +39,9 @@ async function parseDTI(file, meta, db) {
   if (!prodMatch) throw new Error('What do you mean, unknown prod?');
 
   const country = 'HR';
-  const client_group = 'DTI';
+  const client_group = 'interni';
   const client = prodMatch;
-  const product_group = prodMatch;
+  const product_group = 'DTI';
 
   const wb = XLSX.readFile(file.path);
   const ws = wb.Sheets[wb.SheetNames[0]];

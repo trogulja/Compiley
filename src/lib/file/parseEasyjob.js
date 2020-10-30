@@ -6,9 +6,6 @@ const eh = require('../util/excelHelper');
 const tools = require('../db/tools');
 const { setWith, get } = require('lodash');
 // #endregion
-function hours2ms(h) {
-  return h * 3.6e6;
-}
 
 async function parseEasyjob(file, meta, db) {
   /**
@@ -94,7 +91,7 @@ async function parseEasyjob(file, meta, db) {
     const day = tools.handleDay(date, meta, db);
     if (!row.amount) row.amount = 0;
     if (!row.duration) row.duration = 0;
-    row.duration = eh.hour2ms(row.duration);
+    row.duration = eh.hour2s(row.duration);
     const product = tools.handleProduct(
       { country, client_group, client: row.client, product_group: row.product_group, product: row.product },
       meta,

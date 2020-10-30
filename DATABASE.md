@@ -20,8 +20,8 @@ Database definitions and column explanations.
 - **days**: `FOREIGN KEY - days.id | del.CASCADE, upd.CASCADE` *(a link to days table)*
 - **metaSource**: `FOREIGN KEY - metaSource.id | del.CASCADE, upd.CASCADE` *(a link to metaSource table)*
 - **metaUsers**: `FOREIGN KEY - metaUsers.id | del.RESTRICT, upd.CASCADE` *(a link to metaUsers table)*
-- **d_presence**: `INTEGER` *(duration for metaUser for that day - check_out time - check_in time, in MS)*
-- **d_working**: `INTEGER` *(duration that metaUser has spent working at that day, in MS)*
+- **d_presence**: `INTEGER` *(duration for metaUser for that day - check_out time - check_in time, in seconds)*
+- **d_working**: `INTEGER` *(duration that metaUser has spent working at that day, in seconds)*
 
 ## jobs
 - **id**: `INTEGER - primary key, unique, not null - ON CONFLICT IGNORE`
@@ -31,7 +31,7 @@ Database definitions and column explanations.
 - **metaTypes**: `FOREIGN KEY - metaTypes.id | del.RESTRICT, upd.CASCADE` *(a link to metaTypes table)*
 - **metaUsers**: `FOREIGN KEY - metaUsers.id | del.RESTRICT, upd.CASCADE` *(a link to metaUsers table)*
 - **amount**: `INTEGER`
-- **duration**: `INTEGER` *(in MS)*
+- **duration**: `INTEGER` *(in seconds)*
 - **d_type**: `INTEGER - not null, default 0` *(0: read from source, 1: calculated, 2: calculated from average, 3: assumed)*
 
 ## jobsAtomic
@@ -40,7 +40,7 @@ Database definitions and column explanations.
 - **hour**: `INTEGER`
 - **minute**: `INTEGER`
 - **second**: `INTEGER`
-- **duration**: `INTEGER`
+- **duration**: `INTEGER` *(in seconds)*
 - **d_type**: `INTEGER - not null, default 0` *(0: read from source, 1: calculated, 2: calculated from average, 3: assumed, 4: to be determined later)*
 - **timestamp1**: `INTEGER` *(lastRefresh or known timestamp)*
 - **timestamp2**: `INTEGER` *(status change or copy of known timestamp)*
@@ -97,6 +97,6 @@ Database definitions and column explanations.
 - **filename**: `STRING` *(need to match with known filenames)*
 - **channel**: `STRING` *(to be able to figure if it's automatic or standard image)*
 - **metaUsers**: `FOREIGN KEY - metaUsers.id | del.RESTRICT, upd.CASCADE` *(a link to metaUsers table)*
-- **pstime**: `INTEGER`
-- **calctime**: `INTEGER`
+- **pstime**: `INTEGER` *(in seconds)*
+- **calctime**: `INTEGER` *(in seconds)*
 - **processed**: `BOOLEAN` *(did we match it / write it into jobsAtomic or not)*

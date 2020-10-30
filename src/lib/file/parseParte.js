@@ -48,7 +48,7 @@ async function parseParte(file, meta, db) {
   }
 
   const metaJobs = tools.handleProduct(
-    { country: 'HR', client_group: 'DTI', client: 'VL', product_group: 'VL', product: 'parte' },
+    { country: 'HR', client_group: 'interni', client: 'VL', product_group: 'ComponentLink', product: 'Parte' },
     meta,
     db
   );

@@ -12,7 +12,7 @@ const productTable = {
   '24 sata': {
     id: '24 sata',
     client: '24h',
-    defaults: { country: 'HR', client_group: 'interni', client: '24h', product_group: '24h' },
+    defaults: { country: 'HR', client_group: 'interni', client: '24h', product_group: 'admin' },
     unmatched: '24 New graphics',
     useDesk: true,
     types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
@@ -29,7 +29,7 @@ const productTable = {
   'Večernji list': {
     id: 'Večernji list',
     client: 'VL',
-    defaults: { country: 'HR', client_group: 'interni', client: 'VL', product_group: 'VL' },
+    defaults: { country: 'HR', client_group: 'interni', client: 'VL', product_group: 'admin' },
     unmatched: 'New Graphics VL',
     useDesk: true,
     types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
@@ -216,7 +216,7 @@ const productTable = {
   'Red Point': {
     id: 'Red Point',
     client: 'RP',
-    defaults: { country: 'HR', client_group: 'interni', client: 'RP', product_group: 'RP' },
+    defaults: { country: 'HR', client_group: 'interni', client: 'RP', product_group: 'admin' },
     unmatched: 'Razno',
     useDesk: false,
     types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
@@ -255,7 +255,7 @@ const productTable = {
   'Interni klijent': {
     id: 'Interni klijent',
     client: 'RP',
-    defaults: { country: 'HR', client_group: 'interni', client: 'RP', product_group: 'RP' },
+    defaults: { country: 'HR', client_group: 'interni', client: 'RP', product_group: 'admin' },
     unmatched: 'Razno',
     useDesk: false,
     types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
@@ -266,7 +266,7 @@ const productTable = {
   'Poslovni dnevnik': {
     id: 'Poslovni dnevnik',
     client: 'PD',
-    defaults: { country: 'HR', client_group: 'interni', client: 'PD', product_group: 'PD' },
+    defaults: { country: 'HR', client_group: 'interni', client: 'PD', product_group: 'admin' },
     unmatched: 'Dnevnik',
     useDesk: true,
     types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
@@ -277,7 +277,7 @@ const productTable = {
   Pixsell: {
     id: 'Pixsell',
     client: 'Pixsell',
-    defaults: { country: 'HR', client_group: 'interni', client: 'Pixsell', product_group: 'Pixsell' },
+    defaults: { country: 'HR', client_group: 'interni', client: 'Pixsell', product_group: 'admin' },
     unmatched: 'Pixsell',
     useDesk: true,
     types: { standard: 'standard', cutout: 'cutout', other: 'montage' },
@@ -516,7 +516,7 @@ async function mainParser(meta, db) {
           if (durationPattern.test(row[7]) || (row[6] && row[6] !== '')) {
             let dRaw = durationPattern.exec(row[7]);
             let duration = dRaw
-              ? Number(dRaw.groups.h || 0) * 36e5 + Number(dRaw.groups.m || 0) * 6e4 + Number(dRaw.groups.s || 0) * 1e3
+              ? Number(dRaw.groups.h || 0) * 3600 + Number(dRaw.groups.m || 0) * 60 + Number(dRaw.groups.s || 0)
               : null;
             let amount = handleAmount({ n: row[6], t1: row[9], n1: row[8], t2: row[11], n2: row[10], raw: row });
             typeRaw.standard = { duration, amount };
@@ -524,7 +524,7 @@ async function mainParser(meta, db) {
           if (durationPattern.test(row[9]) || (row[8] && row[8] !== '')) {
             let dRaw = durationPattern.exec(row[9]);
             let duration = dRaw
-              ? Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3
+              ? Number(dRaw.groups.h || 0) * 3600 + Number(dRaw.groups.m || 0) * 60 + Number(dRaw.groups.s || 0)
               : null;
             let amount = handleAmount({ n: row[8], t1: row[7], n1: row[6], t2: row[11], n2: row[10], raw: row });
             typeRaw.cutout = { duration, amount };
@@ -532,7 +532,7 @@ async function mainParser(meta, db) {
           if (durationPattern.test(row[11]) || (row[10] && row[10] !== '')) {
             let dRaw = durationPattern.exec(row[11]);
             let duration = dRaw
-              ? Number(dRaw.groups.h) * 36e5 + Number(dRaw.groups.m) * 6e4 + Number(dRaw.groups.s) * 1e3
+              ? Number(dRaw.groups.h || 0) * 3600 + Number(dRaw.groups.m || 0) * 60 + Number(dRaw.groups.s || 0)
               : null;
             let amount = handleAmount({ n: row[10], t1: row[7], n1: row[6], t2: row[9], n2: row[8], raw: row });
             typeRaw.other = { duration, amount };

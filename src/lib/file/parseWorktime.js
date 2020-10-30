@@ -55,7 +55,7 @@ async function parseWorktime(file, meta, db) {
     for (const [i, val] of array3.entries()) {
       const date = new Date(year, month, Number(array2[i])).getTime();
       const days = tools.handleDay(date, meta, db);
-      const d_presence = eh.hour2ms(val);
+      const d_presence = eh.hour2s(val);
       transactionWorktime.push({ days, metaSource: source, metaUsers: user, d_presence });
     }
   }

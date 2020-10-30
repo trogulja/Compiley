@@ -15,10 +15,21 @@ function hour2ms(n) {
   return Number((n * 3.6e6).toPrecision(12));
 }
 
+function hour2s(n) {
+  return Number((n * 3600).toPrecision(12));
+}
+
 function breakDate(d) {
   if (typeof d === 'number') d = new Date(d);
   // d.setHours(d.getHours() - 3); // Offset -3h to get same date range up to 3AM!
-  return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate(), hour: d.getHours(), minute: d.getMinutes(), second: d.getSeconds() };
+  return {
+    year: d.getFullYear(),
+    month: d.getMonth() + 1,
+    day: d.getDate(),
+    hour: d.getHours(),
+    minute: d.getMinutes(),
+    second: d.getSeconds(),
+  };
 }
 
 function generateDate(n) {
@@ -41,4 +52,4 @@ function sanitizeString(str) {
   return str.trim();
 }
 
-module.exports = { date2ms, ms2date, hour2ms, generateDate, breakDate, sanitizeString };
+module.exports = { date2ms, ms2date, hour2ms, hour2s, generateDate, breakDate, sanitizeString };

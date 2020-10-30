@@ -42,7 +42,7 @@ function main(meta, db) {
   ];
 
   const insert = db.prepare(
-    'INSERT INTO helperClaro (type, timestamp, days, filename, channel, metaUsers, pstime, calctime) VALUES (@type, @timestamp, @days, @filename, @channel, @metaUsers, @pstime, @calctime)'
+    'INSERT OR IGNORE INTO helperClaro (type, timestamp, days, filename, channel, metaUsers, pstime, calctime) VALUES (@type, @timestamp, @days, @filename, @channel, @metaUsers, @pstime, @calctime)'
   );
   const insertMany = db.transaction((claros) => {
     for (const claro of claros) insert.run(claro);

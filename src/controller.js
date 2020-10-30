@@ -55,8 +55,8 @@ async function gatherAll() {
   const db = database();
   const meta = getMeta(db);
 
-  // await gatherFiles(meta, db);
-  // parseClaro(meta, db);
+  await gatherFiles(meta, db);
+  parseClaro(meta, db);
   await parseAdmin(meta, db);
 
   db.close();
