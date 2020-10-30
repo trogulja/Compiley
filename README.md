@@ -54,7 +54,9 @@ Compile data from multiple sources to produce work report
   - [x] solve rediculous excel format
   - [x] solve changes in date/time format
   - [x] db transaction
-- [ ] parse Administracija
+- [x] parse Administracija
+  - [x] import from google sheets
+  - [x] solve nightmare
 - [x] parse Parte
   - [x] collect data, user is null
   - [x] insert one new job per day, get id
