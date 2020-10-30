@@ -19,9 +19,10 @@ const parseWorktime = require('./lib/file/parseWorktime');
 const parseParte = require('./lib/file/parseParte');
 const parseAdmin = require('./lib/db/manualAdminImport');
 const parseClaro = require('./lib/db/manualClaroImport');
-const path = require('path');
+// const path = require('path');
 
 async function gatherFiles(meta, db) {
+  console.log(__dirname)
   const dataFolder = path.join(__dirname, '..', 'data');
   const files = await getFiles(dataFolder, meta);
 
@@ -43,8 +44,8 @@ async function gatherFiles(meta, db) {
 
       currentFile += 1;
       percentageDone = Math.floor((currentFile / totalFiles) * 100);
-      // console.log(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.`);
-      process.stdout.write(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.${'\033[0G'}`);
+      console.log(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.`);
+      // process.stdout.write(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.${'\033[0G'}`);
     }
   }
 
@@ -52,15 +53,16 @@ async function gatherFiles(meta, db) {
 }
 
 async function gatherAll() {
-  const db = database();
-  const meta = getMeta(db);
+  // const db = database();
+  // const meta = getMeta(db);
 
-  await gatherFiles(meta, db);
-  parseClaro(meta, db);
-  await parseAdmin(meta, db);
+  // await gatherFiles(meta, db);
+  // parseClaro(meta, db);
+  // await parseAdmin(meta, db);
 
   db.close();
   return true;
 }
 
-gatherAll();
+module.export = gatherAll;
+// gatherAll();

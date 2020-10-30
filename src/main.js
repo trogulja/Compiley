@@ -60,7 +60,7 @@ const createWindow = () => {
       nodeIntegration: true,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
-    icon: __dirname + '/img/lamp.ico'
+    icon: __dirname + '/img/lamp.ico',
   });
 
   mainWindowState.manage(mainWindow);
@@ -78,15 +78,15 @@ const createWindow = () => {
   mainWindow.webContents.on('did-finish-load', () => {
     let name = require('../package.json').productName;
     let version = require('../package.json').version;
-    let windowtitle = name + " app v" + version;
+    let windowtitle = name + ' app v' + version;
     mainWindow.setTitle(windowtitle);
-  })
+  });
 
   // Testing autoupdater
   autoUpdater.on('checking-for-update', () => {
     mainWindow.webContents.send('log', `[${new Date().toTimeString().split(' ')[0]}] Checking for update...`);
   });
-  
+
   autoUpdater.on('before-quit-for-update', () => {
     mainWindow.webContents.send('log', `[${new Date().toTimeString().split(' ')[0]}] Updating...`);
     // controller.destroy();
@@ -119,6 +119,20 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+console.log('got this far in')
+const express = require('express');
+const cors = require('cors');
+const api = express();
+const port = process.env.PORT || 8178;
+
+api.use(express.json({ limit: '100MB' }));
+api.use(cors());
+api.use('/compact', require('./lib/api/compact'));
+
+const server = api.listen(port, () => console.log(`Server started on port ${port}`));
+
+const gatherAll = require('./controller');
+// gatherAll();
 
 /**
  * File watcher logic
