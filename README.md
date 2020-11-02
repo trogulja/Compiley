@@ -81,3 +81,11 @@ Compile data from multiple sources to produce work report
 - [ ] Controller output
   - [ ] define API endpoints
   - [ ] link to excel query
+
+# GUI
+- [ ] switch to electron-builder
+  - [ ] fix dependencies
+- [ ] basic layout
+  - [ ] start/stop button
+  - [ ] message display via IPC
+  - [ ] make event emitter from controller/parsers
