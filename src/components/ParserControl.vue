@@ -6,7 +6,7 @@
           <v-row>
             <v-col class="px-10 d-flex align-center justify-center">
               <v-scale-transition>
-                <v-btn v-if="!loading" @click="startCollecting">Pokreni me!</v-btn>
+                <v-btn :disabled="loading" @click="startCollecting">Pokreni me!</v-btn>
               </v-scale-transition>
             </v-col>
           </v-row>
@@ -23,7 +23,7 @@
                       <v-list-item-title>
                         <span class="timestamp mr-4">{{ log.time }}</span> {{ log.text }}
                       </v-list-item-title>
-                      <v-list-item-subtitle ref="logs" v-text="checkOverflow(`log-${i}`)"> </v-list-item-subtitle>
+                      <!-- <v-list-item-subtitle ref="logs" v-text="checkOverflow(`log-${i}`)"> </v-list-item-subtitle> -->
                     </v-list-item-content>
                   </v-list-item>
                 </v-list-item-group>
@@ -44,20 +44,11 @@ export default {
     loading: false,
     icons: {
       ok: { icon: 'mdi-checkbox-marked-outline', color: 'green' },
+      info: { icon: 'mdi-alert-circle-check-outline', color: 'info' },
       warn: { icon: 'mdi-alert-outline', color: 'orange' },
       error: { icon: 'mdi-alert-octagram-outline', color: 'red' },
     },
-    logs: [
-      { event: 'ok', time: '16:25', text: 'ovo je neka linija' },
-      { event: 'warn', time: '16:26', text: 'ovo je neka druga linija' },
-      { event: 'error', time: '16:27', text: 'ovo je neka treća linija' },
-      {
-        event: 'ok',
-        time: '16:28',
-        text:
-          'ovo je neka jako duga linija ovo je neka jako duga linija ovo je neka jako duga linija ovo je neka jako duga linija ovo je neka jako duga linija ovo je neka jako duga linija ovo je neka jako duga linija ovo je neka jako duga linija ovo je neka jako duga linija',
-      },
-    ],
+    logs: [],
   }),
 
   created() {
@@ -65,6 +56,10 @@ export default {
     window.ipcRenderer.on('job', function(event, arg) {
       if (arg === 'started') thisclass.loading = true;
       if (arg === 'stopped') thisclass.loading = false;
+    });
+    window.ipcRenderer.on('log', function(event, arg) {
+      thisclass.logs.unshift(arg);
+      if (thisclass.logs.length > 30) thisclass.logs.length = 30;
     });
   },
 

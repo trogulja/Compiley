@@ -7,6 +7,7 @@ const readline = require('readline');
 const { google } = require('googleapis');
 const { get, setWith } = require('lodash');
 const tools = require('../db/tools');
+const notifier = require('../util/notifier');
 
 const productTable = {
   '24 sata': {
@@ -399,7 +400,8 @@ const TOKEN_PATH = path.join(paths.db, 'token.json');
 
 async function mainParser(meta, db) {
   let content, result;
-  console.log(`[${new Date().toTimeString().split(' ')[0]}] [Admin] Connecting to google sheets...`);
+  notifier.emit('ok', `Connecting to google sheets...`);
+  const time = new Date().getTime();
 
   async function authorize(credentials, callback) {
     const { client_secret, client_id, redirect_uris } = credentials.installed;
@@ -418,7 +420,7 @@ async function mainParser(meta, db) {
       access_type: 'offline',
       scope: SCOPES,
     });
-    console.log('Authorize this app by visiting this url:', authUrl);
+    notifier.emit('warn', `Authorize this app by visiting this url: ${authUrl}`);
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -440,7 +442,6 @@ async function mainParser(meta, db) {
 
   async function getAdmin(auth) {
     const sheets = google.sheets({ version: 'v4', auth });
-    let doner = [];
     try {
       const res = await sheets.spreadsheets.values.get({
         spreadsheetId: '1yljwJAv9L0IjI5vKTkRWtN4ahvFctwFCWcFWRJICoBg',
@@ -470,7 +471,7 @@ async function mainParser(meta, db) {
         const outputSize = roughSizeOfObject(rows);
         const outputDate = new Date().getTime();
         let index = 0;
-        console.log(`Retreived ${humanFileSize(outputSize)} from google sheets...`);
+        notifier.emit('ok', `Retreived ${humanFileSize(outputSize)} from google sheets...`);
         const metaSource = tools.handleSource(
           {
             name: 'google/administracija',
@@ -601,7 +602,7 @@ async function mainParser(meta, db) {
           // output[klijent][desk].add(proizvod);
         }
         // console.log(JSON.stringify(unique, null, 3));
-        console.log(`Parsed ${humanFileSize(roughSizeOfObject(output))} in output object...`);
+        notifier.emit('ok', `Parsed ${humanFileSize(roughSizeOfObject(output))} in output object...`);
 
         const transactionJobs = [];
         for (const days in output) {
@@ -630,12 +631,12 @@ async function mainParser(meta, db) {
         await fs.writeFile(path.join(paths.db, 'administracija.json'), JSON.stringify(unique, Set_toJSON, 6), 'utf-8');
         return true;
       } else {
-        console.log('No data found.');
+        notifier.emit('error', 'No data found.');
       }
     } catch (err) {
-      console.log('The API returned an error:', err);
+      notifier.emit('error', `The API returner an error: ${err}`);
     }
-    return doner;
+    return true;
   }
 
   try {
@@ -650,7 +651,7 @@ async function mainParser(meta, db) {
     console.log('Ovdje ne bi trebalo doć do errora.');
   }
 
-  console.log(`[${new Date().toTimeString().split(' ')[0]}] [Admin] Output ready, returning.`);
+  notifier.emit('info', `manualAdminImport() - Data collected in ${new Date().getTime() - time}ms`);
   return result;
 }
 

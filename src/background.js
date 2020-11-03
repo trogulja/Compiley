@@ -153,12 +153,35 @@ const server = api.listen(port, () => console.log(`Server started on port ${port
  * Data intake logic
  */
 const gatherAll = require('./controller');
+const notifier = require('./lib/util/notifier');
+
+notifier.on('ok', (message) => {
+  sendToRenderer('ok', message);
+});
+notifier.on('info', (message) => {
+  sendToRenderer('info', message);
+});
+notifier.on('warn', (message) => {
+  sendToRenderer('warn', message);
+});
+notifier.on('error', (message) => {
+  sendToRenderer('error', message);
+});
+notifier.on('job', (message) => {
+  win.webContents.send('job', message);
+});
+
+function sendToRenderer(event, text) {
+  const date = new Date();
+  const hours = date.getHours();
+  const minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+  const seconds = date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds();
+  const time = `${hours}:${minutes}:${seconds}`;
+  win.webContents.send('log', { event, time, text });
+}
 
 ipcMain.on('job', async function (event, arg) {
-  if (arg === 'init') {
-    console.log('Received init, I should start the job i guess');
-    // await gatherAll();
-  }
+  if (arg === 'init') await gatherAll();
 });
 
 /**

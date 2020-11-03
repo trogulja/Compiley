@@ -71,6 +71,8 @@ export default {
       if (arg === 'started') thisclass.loading = true;
       if (arg === 'stopped') thisclass.loading = false;
       if (typeof arg === 'number') thisclass.loadingValue = arg;
+      if (arg === 100) thisclass.loading = false;
+      console.log(arg);
     });
   },
 };

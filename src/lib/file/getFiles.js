@@ -9,6 +9,7 @@ const fileGroup = {
   admin: /Neki regex za admin/,
 };
 const tmpFile = /~\$.+\.xls/i;
+const notifier = require('../util/notifier');
 
 function trimFile(file) {
   return {
@@ -32,8 +33,8 @@ async function getFiles(dir, validGroup, originDir = dir) {
   try {
     files = await fs.readdir(dir);
   } catch (error) {
-    console.log('Error in getFiles()');
-    console.log(error.message);
+    notifier.emit('error', `getFiles() failed: ${error.message}`);
+    return false;
   }
 
   files = await Promise.all(
@@ -46,7 +47,10 @@ async function getFiles(dir, validGroup, originDir = dir) {
         // valid = ['dti', 'claro', 'easyjob', 'worktime', 'admin'] - populated from getMeta, passed via controller
         let isValid = false;
         validGroup.forEach((el) => {
-          if (!fileGroup[el]) throw new Error(`We need ${el} key defined in fileGroup constant.`);
+          if (!fileGroup[el]) {
+            notifier.emit('error', `We need ${el} key defined in fileGroup constant.`);
+            return false;
+          }
           if (fileGroup[el].test(path.basename(filePath))) isValid = el;
         });
 
@@ -77,7 +81,7 @@ async function main(dir, meta) {
   // dir = path.join(__dirname, '..', '..', '..', '..', 'Compiley-old'); // for manual test
 
   const results = await getFiles(dir, meta.validGroup);
-  console.log(`Reading dirs done in ${new Date().getTime() - time}ms`);
+  notifier.emit('info', `getFiles() - Reading dirs done in ${new Date().getTime() - time}ms`);
   const time2 = new Date().getTime();
   const output = { all: {}, new: {} };
 
@@ -101,7 +105,7 @@ async function main(dir, meta) {
     }
   }
 
-  console.log(`Sorting results done in ${new Date().getTime() - time2}ms`);
+  notifier.emit('info', `getFiles() - Sorting results done in ${new Date().getTime() - time2}ms`);
   return output;
 }
 

@@ -4,8 +4,10 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const paths = require('../util/pathHandler');
 const tools = require('./tools');
+const notifier = require('../util/notifier');
 
 function main(meta, db) {
+  const time = new Date().getTime();
   const db2 = new Database(path.join(paths.db, 'logClaro.db'));
 
   const jobs = [
@@ -67,6 +69,7 @@ function main(meta, db) {
   }
 
   db2.close();
+  notifier.emit('info', `manualClaroImport() - Data collected in ${ new Date().getTime() - time }ms`)
   return true;
 }
 
