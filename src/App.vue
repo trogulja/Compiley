@@ -1,9 +1,19 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
+      <v-toolbar-title>
+        {{ meta.name }} <v-chip v-if="meta.version" color="white" label small outlined>v{{ meta.version }}</v-chip>
+      </v-toolbar-title>
+      <v-progress-linear
+        :active="loading"
+        height="10"
+        :value="loadingValue"
+        absolute
+        bottom
+        color="orange"
+      ></v-progress-linear>
       <v-spacer></v-spacer>
-      <v-toolbar-title>{{ title }}</v-toolbar-title>
+      <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" absolute temporary>
       <v-list nav dense>
@@ -25,34 +35,43 @@
       </v-list>
     </v-navigation-drawer>
     <v-main>
-      <HelloWorld />
+      <ParserControl />
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import ParserControl from './components/ParserControl';
 
 export default {
   name: 'App',
 
   components: {
-    HelloWorld,
+    ParserControl,
   },
 
   data: () => ({
     drawer: false,
     group: false,
-    title: 'Compiley',
+    loading: false,
+    loadingValue: 0,
+    meta: {
+      name: 'Compiley',
+      version: false,
+    },
   }),
 
   created() {
     const thisclass = this;
     window.ipcRenderer.on('title', function (event, arg) {
-      console.log(arg);
-      thisclass.title = arg.title;
+      thisclass.meta.name = arg.name;
+      thisclass.meta.version = arg.version;
     });
-    window.ipcRenderer.send('job', 'init');
+    window.ipcRenderer.on('job', function (event, arg) {
+      if (arg === 'started') thisclass.loading = true;
+      if (arg === 'stopped') thisclass.loading = false;
+      if (typeof arg === 'number') thisclass.loadingValue = arg;
+    });
   },
 };
 </script>

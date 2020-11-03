@@ -56,7 +56,7 @@ async function createWindow() {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       preload: path.join(__dirname, 'preload.js'),
     },
-    // icon: __dirname + '/public/favicon.ico',
+    icon: path.join(__dirname, '..', 'public', 'favicon.ico'),
   });
 
   winState.manage(win);
@@ -156,7 +156,8 @@ const gatherAll = require('./controller');
 
 ipcMain.on('job', async function (event, arg) {
   if (arg === 'init') {
-    await gatherAll();
+    console.log('Received init, I should start the job i guess');
+    // await gatherAll();
   }
 });
 
