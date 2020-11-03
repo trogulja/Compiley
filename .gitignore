@@ -74,6 +74,7 @@ typings/
 
 # webpack bundler cache
 .webpack
+dist_electron/
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

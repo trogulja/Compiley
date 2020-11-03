@@ -19,7 +19,7 @@ const parseWorktime = require('./lib/file/parseWorktime');
 const parseParte = require('./lib/file/parseParte');
 const parseAdmin = require('./lib/db/manualAdminImport');
 const parseClaro = require('./lib/db/manualClaroImport');
-// const path = require('path');
+const path = require('path');
 
 async function gatherFiles(meta, db) {
   console.log(__dirname)
@@ -53,16 +53,16 @@ async function gatherFiles(meta, db) {
 }
 
 async function gatherAll() {
-  // const db = database();
-  // const meta = getMeta(db);
+  const db = database();
+  const meta = getMeta(db);
 
-  // await gatherFiles(meta, db);
-  // parseClaro(meta, db);
-  // await parseAdmin(meta, db);
+  await gatherFiles(meta, db);
+  parseClaro(meta, db);
+  await parseAdmin(meta, db);
 
   db.close();
   return true;
 }
 
-module.export = gatherAll;
+module.exports = gatherAll;
 // gatherAll();

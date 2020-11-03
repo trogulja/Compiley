@@ -3,7 +3,7 @@
     <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
       <v-spacer></v-spacer>
-      <v-toolbar-title>Compiley v1.0.0</v-toolbar-title>
+      <v-toolbar-title>{{ title }}</v-toolbar-title>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" absolute temporary>
       <v-list nav dense>
@@ -42,6 +42,17 @@ export default {
 
   data: () => ({
     drawer: false,
+    group: false,
+    title: 'Compiley',
   }),
+
+  created() {
+    const thisclass = this;
+    window.ipcRenderer.on('title', function (event, arg) {
+      console.log(arg);
+      thisclass.title = arg.title;
+    });
+    window.ipcRenderer.send('job', 'init');
+  },
 };
 </script>

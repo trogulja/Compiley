@@ -1,19 +1,16 @@
 'use strict';
 
-const { app, BrowserWindow, Menu, ipcMain, autoUpdater } = require('electron');
+import { app, protocol, BrowserWindow, Menu, ipcMain, autoUpdater } from 'electron';
 const windowStateKeeper = require('electron-window-state');
-let environment = 'production';
-// let environment = 'development';
+import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+const isDevelopment = process.env.NODE_ENV !== 'production';
+const path = require('path');
+if (isDevelopment) require('dotenv').config();
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) app.quit();
+let win;
 
-// Set autoupdate functionality
-require('update-electron-app')();
-
-// Auto SET ENV - when deployed, paths change somewhat
-if (process.execPath.search('electron.exe') !== -1) environment = 'development';
-if (environment === 'development') require('dotenv').config();
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
 const mainMenuTemplate = [
   {
@@ -30,96 +27,117 @@ const mainMenuTemplate = [
   },
 ];
 if (process.platform === 'darwin') mainMenuTemplate.unshift({});
-if (environment === 'development') {
+if (isDevelopment) {
   mainMenuTemplate.push({
     label: 'Developer Tools',
     submenu: [{ role: 'toggledevtools' }, { role: 'reload' }],
   });
 }
 
-let mainWindow;
-const createWindow = () => {
-  const mainWindowState = windowStateKeeper({
-    defaultWidth: 600,
-    defaultHeight: 580,
-  });
-
-  // const allowResize = environment === 'development' ? true : false;
+async function createWindow() {
   const allowResize = true;
-
+  const winState = windowStateKeeper({
+    defaultWidth: 800,
+    defaultHeight: 600,
+  });
   // Create the browser window.
-  mainWindow = new BrowserWindow({
-    x: mainWindowState.x,
-    y: mainWindowState.y,
-    width: allowResize ? mainWindowState.width : 600,
-    height: allowResize ? mainWindowState.height : 580,
+
+  win = new BrowserWindow({
+    x: winState.x,
+    y: winState.y,
+    width: allowResize ? winState.width : 800,
+    height: allowResize ? winState.height : 600,
     minWidth: 600,
     minHeight: 580,
     resizable: allowResize,
     webPreferences: {
-      nodeIntegration: true,
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      // Use pluginOptions.nodeIntegration, leave this alone
+      // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      preload: path.join(__dirname, 'preload.js'),
     },
-    icon: __dirname + '/img/lamp.ico',
+    // icon: __dirname + '/public/favicon.ico',
   });
 
-  mainWindowState.manage(mainWindow);
-
-  // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  winState.manage(win);
 
   const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
   Menu.setApplicationMenu(mainMenu);
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
-
   // Dynamic window type, based on package.json
-  mainWindow.webContents.on('did-finish-load', () => {
+  win.webContents.on('did-finish-load', () => {
     let name = require('../package.json').productName;
     let version = require('../package.json').version;
     let windowtitle = name + ' app v' + version;
-    mainWindow.setTitle(windowtitle);
+    win.setTitle(windowtitle);
+    win.webContents.send('title', { name: name, version: version, title: windowtitle });
   });
 
-  // Testing autoupdater
-  autoUpdater.on('checking-for-update', () => {
-    mainWindow.webContents.send('log', `[${new Date().toTimeString().split(' ')[0]}] Checking for update...`);
+  if (process.env.WEBPACK_DEV_SERVER_URL) {
+    // Load the url of the dev server if in development mode
+    await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+    if (!process.env.IS_TEST) win.webContents.openDevTools();
+  } else {
+    createProtocol('app');
+    // Load the index.html when not in development
+    win.loadURL('app://./index.html');
+  }
+
+  win.on('closed', () => {
+    win = null;
   });
+}
 
-  autoUpdater.on('before-quit-for-update', () => {
-    mainWindow.webContents.send('log', `[${new Date().toTimeString().split(' ')[0]}] Updating...`);
-    // controller.destroy();
-    autoUpdater.quitAndInstall();
-  });
-};
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+// Quit when all windows are closed.
 app.on('window-all-closed', () => {
+  // On macOS it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    // controller.destroy();
     app.quit();
   }
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
+  // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
+  if (win === null) {
     createWindow();
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
-console.log('got this far in')
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', async () => {
+  if (isDevelopment && !process.env.IS_TEST) {
+    // Install Vue Devtools
+    try {
+      await installExtension(VUEJS_DEVTOOLS);
+    } catch (e) {
+      console.error('Vue Devtools failed to install:', e.toString());
+    }
+  }
+  createWindow();
+});
+
+// Exit cleanly on request from parent process in development mode.
+if (isDevelopment) {
+  if (process.platform === 'win32') {
+    process.on('message', (data) => {
+      if (data === 'graceful-exit') {
+        app.quit();
+      }
+    });
+  } else {
+    process.on('SIGTERM', () => {
+      app.quit();
+    });
+  }
+}
+
+/**
+ * API serving logic
+ */
 const express = require('express');
 const cors = require('cors');
 const api = express();
@@ -131,8 +149,16 @@ api.use('/compact', require('./lib/api/compact'));
 
 const server = api.listen(port, () => console.log(`Server started on port ${port}`));
 
+/**
+ * Data intake logic
+ */
 const gatherAll = require('./controller');
-// gatherAll();
+
+ipcMain.on('job', async function (event, arg) {
+  if (arg === 'init') {
+    await gatherAll();
+  }
+});
 
 /**
  * File watcher logic
