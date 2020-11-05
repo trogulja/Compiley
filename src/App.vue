@@ -4,36 +4,15 @@
       <v-toolbar-title>
         {{ meta.name }} <v-chip v-if="meta.version" color="white" label small outlined>v{{ meta.version }}</v-chip>
       </v-toolbar-title>
-      <v-progress-linear
-        :active="loading"
-        height="10"
-        :value="loadingValue"
-        absolute
-        bottom
-        color="orange"
-      ></v-progress-linear>
+      <v-progress-linear :active="loading" height="10" :value="loadingValue" absolute bottom color="orange" />
       <v-spacer></v-spacer>
-      <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
+      <v-btn icon>
+        <v-icon>mdi-information-outline</v-icon>
+      </v-btn>
+      <v-btn icon>
+        <v-icon>mdi-cog-outline</v-icon>
+      </v-btn>
     </v-app-bar>
-    <v-navigation-drawer v-model="drawer" absolute temporary>
-      <v-list nav dense>
-        <v-list-item-group v-model="group" active-class="deep-purple--text text--accent-4">
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon>mdi-home</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon>mdi-account</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Account</v-list-item-title>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer>
     <v-main>
       <ParserControl />
     </v-main>
@@ -51,8 +30,6 @@ export default {
   },
 
   data: () => ({
-    drawer: false,
-    group: false,
     loading: false,
     loadingValue: 0,
     meta: {
