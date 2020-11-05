@@ -83,9 +83,19 @@ Compile data from multiple sources to produce work report
   - [ ] link to excel query
 
 # GUI
-- [ ] switch to electron-builder
-  - [ ] fix dependencies
-- [ ] basic layout
-  - [ ] start/stop button
-  - [ ] message display via IPC
-  - [ ] make event emitter from controller/parsers
+- [x] switch to electron-builder
+  - [x] fix dependencies
+- [x] basic layout
+  - [x] start/stop button
+  - [x] message display via IPC
+  - [x] make event emitter from controller/parsers
+  - [ ] clear output
+  - [ ] check db button
+    - [ ] report anything wrong in db
+    - [ ] report what is missing
+- [ ] configuration modal
+  - [ ] path to excel files
+  - [ ] url for administration
+  - [ ] url for claro
+- [ ] information modal
+  - [ ] connect excel to api guide
