@@ -5,15 +5,24 @@
         <v-card>
           <v-row>
             <v-col class="px-10 d-flex align-center justify-center">
-              <v-scale-transition>
-                <v-btn :disabled="loading" @click="startCollecting">Pokreni me!</v-btn>
-              </v-scale-transition>
+              <v-spacer></v-spacer>
+              <v-btn color="warning" :disabled="loading" @click="startMain">Skupi podatke i provjeri bazu!</v-btn>
+              <v-spacer></v-spacer>
+              <v-btn :disabled="loading" @click="startCheck">Provjeri bazu</v-btn>
+              <v-spacer></v-spacer>
             </v-col>
           </v-row>
           <v-row>
             <v-col align="left" class="px-10">
               <v-list dense>
-                <v-subheader>IZVJEŠTAJ</v-subheader>
+                <v-subheader>
+                  IZVJEŠTAJ
+                  <v-spacer></v-spacer>
+                  <v-btn :disabled="logs.length === 0" x-small icon @click="clearLogs()">
+                    <v-icon v-if="!logs.length">mdi-delete-outline</v-icon>
+                    <v-icon color="red lighten-3" v-else>mdi-delete-forever</v-icon>
+                  </v-btn>
+                </v-subheader>
                 <v-list-item-group color="primary">
                   <v-list-item v-for="(log, i) in logs" :key="i">
                     <v-list-item-icon>
@@ -64,8 +73,11 @@ export default {
   },
 
   methods: {
-    startCollecting: function() {
+    startMain: function() {
       window.ipcRenderer.send('job', 'init');
+    },
+    startCheck: function() {
+      window.ipcRenderer.send('job', 'check');
     },
     checkOverflow: function(id) {
       console.log(id);
@@ -76,6 +88,9 @@ export default {
       const parentWidth = elem.parentElement.getBoundingClientRect().width;
 
       return elemWidth > parentWidth;
+    },
+    clearLogs: function() {
+      this.logs = [];
     },
   },
 };

@@ -89,7 +89,7 @@ Compile data from multiple sources to produce work report
   - [x] start/stop button
   - [x] message display via IPC
   - [x] make event emitter from controller/parsers
-  - [ ] clear output
+  - [x] clear output
   - [ ] check db button
     - [ ] report anything wrong in db
     - [ ] report what is missing
