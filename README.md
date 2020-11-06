@@ -95,6 +95,7 @@ Compile data from multiple sources to produce work report
     - [ ] report what is missing
 - [ ] configuration modal
   - [ ] path to excel files
+    - [ ] check for expected subfolders?
   - [ ] url for administration
   - [ ] url for claro
 - [ ] information modal
