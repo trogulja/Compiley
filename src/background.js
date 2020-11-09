@@ -152,7 +152,7 @@ const server = api.listen(port, () => console.log(`Server started on port ${port
 /**
  * Data intake logic
  */
-const gatherAll = require('./controller');
+const { gatherAll, houseKeeping } = require('./controller');
 const notifier = require('./lib/util/notifier');
 
 notifier.on('ok', (message) => {
@@ -180,46 +180,6 @@ function sendToRenderer(event, text) {
   win.webContents.send('log', { event, time, text });
 }
 
-ipcMain.on('job', async function (event, arg) {
+ipcMain.on('job', async function(event, arg) {
   if (arg === 'init') await gatherAll();
 });
-
-/**
- * File watcher logic
- */
-
-// const controller = require('./controller');
-
-// controller.events.on('log', function (msg) {
-//   mainWindow.webContents.send('log', msg);
-// });
-
-// controller.events.on('info', function (msg) {
-//   mainWindow.webContents.send('info', msg);
-// });
-
-// controller.events.on('meta', function (msg) {
-//   mainWindow.webContents.send('meta', msg);
-// });
-
-/**
- * InterProcess Communication
- */
-
-// ipcMain.on('init-job', function (event, arg) {
-//   controller.init();
-//   controller.start();
-//   mlin.init();
-// });
-
-// ipcMain.on('start-job', function (event, arg) {
-//   controller.start();
-// });
-
-// ipcMain.on('stop-job', function (event, arg) {
-//   controller.stop();
-// });
-
-// ipcMain.on('force-start', function (event, arg) {
-//   controller.forceStart(arg);
-// });

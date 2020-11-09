@@ -6,6 +6,7 @@ const Datastore = require('nedb-promises');
 const eh = require('../util/excelHelper');
 const tools = require('../db/tools');
 const { setWith, get } = require('lodash');
+const notifier = require('../util/notifier');
 // #endregion
 
 async function parseDTI(file, meta, db) {
@@ -295,23 +296,34 @@ async function parseDTI(file, meta, db) {
 
   // Insert jobsAtomic into db
   const transactionJobsAtomic = [];
+  let duplicatesDetected = false;
   for (const job of results) {
     // if (job.name.includes('JP019_057')) console.log(job)
-    transactionJobsAtomic.push({
-      jobs: tableJobsId[job.id],
-      hour: job.hour,
-      minute: job.minute,
-      second: job.second,
-      duration: job.duration,
-      d_type: job.d_type,
-      timestamp1: job.time,
-      timestamp2: job.time2,
-      name: job.name,
-      row: job.row,
-    });
+    if (tableJobsId[job.id]) {
+      // Make sure we push only jobs that have not failed tools.insertNewJob() func
+      transactionJobsAtomic.push({
+        jobs: tableJobsId[job.id],
+        hour: job.hour,
+        minute: job.minute,
+        second: job.second,
+        duration: job.duration,
+        d_type: job.d_type,
+        timestamp1: job.time,
+        timestamp2: job.time2,
+        name: job.name,
+        row: job.row,
+      });
+    } else {
+      duplicatesDetected = true;
+    }
   }
   tools.insertTransactionJobsAtomic(transactionJobsAtomic, db);
 
+  if (duplicatesDetected) {
+    notifier.emit('warn', `Duplicate records found in ${file.name}`);
+    // console.log('duplicate records found in', file.name);
+    // console.log(file);
+  }
   // console.log(transactionJobsAtomic);
   return true;
 }

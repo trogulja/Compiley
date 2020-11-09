@@ -7,6 +7,7 @@ const readline = require('readline');
 const { google } = require('googleapis');
 const { get, setWith } = require('lodash');
 const tools = require('../db/tools');
+const extras = require('../util/extras');
 const notifier = require('../util/notifier');
 
 const productTable = {
@@ -287,44 +288,6 @@ const productTable = {
     },
   },
 };
-function humanFileSize(bytes, si = false, dp = 1) {
-  const thresh = si ? 1000 : 1024;
-  if (Math.abs(bytes) < thresh) {
-    return bytes + ' B';
-  }
-  const units = si
-    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-  let u = -1;
-  const r = 10 ** dp;
-  do {
-    bytes /= thresh;
-    ++u;
-  } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
-  return bytes.toFixed(dp) + ' ' + units[u];
-}
-function roughSizeOfObject(object) {
-  var objectList = [];
-  var stack = [object];
-  var bytes = 0;
-  while (stack.length) {
-    var value = stack.pop();
-    if (typeof value === 'boolean') {
-      bytes += 4;
-    } else if (typeof value === 'string') {
-      bytes += value.length * 2;
-    } else if (typeof value === 'number') {
-      bytes += 8;
-    } else if (typeof value === 'object' && objectList.indexOf(value) === -1) {
-      objectList.push(value);
-      for (var i in value) {
-        stack.push(value[i]);
-      }
-    }
-  }
-  return bytes;
-  // return humanFileSize(bytes);
-}
 
 function resolveAdministration(table) {
   if (!table.check) throw new Error(`Unknown client "${table.client}" in resolveAdministration()!`);
@@ -468,10 +431,10 @@ async function mainParser(meta, db) {
         const durationPattern = /(?<h>\d+)\:(?<m>\d+)(?:\:(?<s>\d+))?/;
 
         const output = {};
-        const outputSize = roughSizeOfObject(rows);
+        const outputSize = extras.roughSizeOfObject(rows);
         const outputDate = new Date().getTime();
         let index = 0;
-        notifier.emit('ok', `Retreived ${humanFileSize(outputSize)} from google sheets...`);
+        notifier.emit('ok', `Retreived ${extras.humanFileSize(outputSize)} from google sheets...`);
         const metaSource = tools.handleSource(
           {
             name: 'google/administracija',
@@ -602,7 +565,7 @@ async function mainParser(meta, db) {
           // output[klijent][desk].add(proizvod);
         }
         // console.log(JSON.stringify(unique, null, 3));
-        notifier.emit('ok', `Parsed ${humanFileSize(roughSizeOfObject(output))} in output object...`);
+        notifier.emit('ok', `Parsed ${extras.humanFileSize(extras.roughSizeOfObject(output))} in output object...`);
 
         const transactionJobs = [];
         for (const days in output) {

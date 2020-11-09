@@ -32,11 +32,17 @@ function handleProduct(p, meta, db) {
     }
   }
 
-  const info = db
-    .prepare(
-      'INSERT INTO metaJobs (country, client_group, client, product_group, product, metaPrintTypes) VALUES (@country, @client_group, @client, @product_group, @product, @printType)'
-    )
-    .run(p);
+  let info = {};
+  try {
+    info = db
+      .prepare(
+        'INSERT INTO metaJobs (country, client_group, client, product_group, product, metaPrintTypes) VALUES (@country, @client_group, @client, @product_group, @product, @printType)'
+      )
+      .run(p);
+  } catch (error) {
+    console.log(p);
+    console.log(error);
+  }
 
   if (info.changes !== 1) {
     console.log();

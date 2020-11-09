@@ -37,7 +37,7 @@ async function gatherFiles(meta, db) {
   for (const group in files.all) {
     ignoredFiles += files.all[group].length;
   }
-  notifier.emit('ok', `Found ${totalFiles} new files and ${ignoredFiles} already processed files.`)
+  notifier.emit('ok', `Found ${totalFiles} new files and ${ignoredFiles} already processed files.`);
 
   for (const group in files.new) {
     for (const file of files.new[group]) {
@@ -50,7 +50,7 @@ async function gatherFiles(meta, db) {
 
       currentFile += 1;
       percentageDone = Math.floor((currentFile / totalFiles) * 100);
-      notifier.emit('job', percentageDone)
+      notifier.emit('job', percentageDone);
       // console.log(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.`);
       // process.stdout.write(`File ${currentFile} of ${totalFiles} done. ${percentageDone}% complete.${'\033[0G'}`);
     }
@@ -62,25 +62,46 @@ async function gatherFiles(meta, db) {
 async function gatherAll() {
   notifier.emit('job', 'started');
   notifier.emit('job', 0);
-  notifier.emit('ok', 'Getting meta data.')
+  notifier.emit('ok', 'Getting meta data.');
   const db = database();
   const meta = getMeta(db);
 
-  notifier.emit('ok', 'Checking directory for files.')
+  notifier.emit('ok', 'Checking directory for files.');
   await gatherFiles(meta, db);
   notifier.emit('job', 100);
 
-  notifier.emit('ok', 'Getting data from claro database.')
+  notifier.emit('ok', 'Getting data from claro database.');
   parseClaro(meta, db);
 
-  notifier.emit('ok', 'Getting administration data from google sheets.')
+  notifier.emit('ok', 'Getting administration data from google sheets.');
   await parseAdmin(meta, db);
 
+  // notifier.emit('ok', 'Processing and matching data in the database.');
+  // await houseKeeping(meta, db, true);
+
   db.close();
-  notifier.emit('ok', 'Data gathering completed.')
+  notifier.emit('ok', 'Data gathering completed.');
   notifier.emit('job', 'stopped');
   return true;
 }
 
-module.exports = gatherAll;
+async function houseKeeping(meta, db, nested) {
+  if (!nested) {
+    notifier.emit('job', 'started');
+    db = database();
+    meta = getMeta(db)
+  }
+
+  
+  await dbCheckDTIClaro(meta, db)
+  
+  await dbCheckEasyjobClaro(meta, db)
+  
+  await dbCalcDays(meta, db)
+
+  if (!nested) notifier.emit('job', 'stopped');
+  return true;
+}
+
+module.exports = { gatherAll, houseKeeping };
 // gatherAll();

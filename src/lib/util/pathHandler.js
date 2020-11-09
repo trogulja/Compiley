@@ -34,8 +34,10 @@ if (app === 'prod') {
 } else if (app === 'dev' || app == 'test') {
   let frag = __dirname.split(path.sep);
   let searchable = false;
-  if (__dirname.search('src')) searchable = 'src';
-  if (__dirname.search('dist_electron')) searchable = 'dist_electron';
+
+  if (__dirname.search('src') > 0) searchable = 'src';
+  else if (__dirname.search('dist_electron') > 0) searchable = 'dist_electron';
+
   if (searchable) frag.length = frag.indexOf(searchable);
   else throw new Error(`Path is unexpected, check it: ${__dirname}`);
   paths.root = path.join(...frag);
@@ -51,7 +53,7 @@ const db_file = path.join(paths.root, 'db', 'compiley.db');
 // if there is no db, we can init with default data
 
 paths.database = db_file;
-console.log(paths)
+console.log(paths);
 
 // console.log(paths)
 
