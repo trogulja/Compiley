@@ -104,4 +104,4 @@ async function houseKeeping(meta, db, nested) {
 }
 
 module.exports = { gatherAll, houseKeeping };
-// gatherAll();
+gatherAll();

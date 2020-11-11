@@ -10,6 +10,36 @@ const database = require('./init');
 const getMeta = require('./meta');
 const { get, setWith } = require('lodash');
 
+function calculateDays(meta, db) {
+  const sql = db.prepare(
+    'UPDATE days SET sum_images = ( SELECT sum(amount) FROM jobs WHERE jobs.days = days.id ), sum_users = ( SELECT DISTINCT (metaUsers) FROM jobs WHERE jobs.days = days.id ), sum_images_atomic = ( SELECT count( * ) FROM jobsAtomic LEFT JOIN jobs ON jobsAtomic.jobs = jobs.id WHERE jobs.days = days.id ), sum_users_atomic = ( SELECT DISTINCT (jobs.metaUsers) FROM jobsAtomic LEFT JOIN jobs ON jobsAtomic.jobs = jobs.id WHERE jobs.days = days.id ), sum_d_working = ( SELECT sum(duration) FROM jobs WHERE jobs.days = days.id ), sum_d_presence = ( SELECT sum(d_presence) FROM worktime WHERE worktime.days = days.id );'
+  );
+
+  try {
+    sql.run();
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+
+  return true;
+}
+
+function calculateWorktime(meta, db) {
+  const sql = db.prepare(
+    'UPDATE worktime SET d_working = ( SELECT sum(duration) FROM jobs WHERE jobs.days = worktime.days AND jobs.metaUsers = worktime.metaUsers );'
+  );
+
+  try {
+    sql.run();
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+
+  return true;
+}
+
 function main(meta, db) {
   // do an sql
   // console.log(extras.humanFileSize(extras.roughSizeOfObject(meta)));
