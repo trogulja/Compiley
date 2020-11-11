@@ -34,7 +34,7 @@ async function parseEasyjob(file, meta, db) {
       's4',
       's5',
       'type2',
-      'hours',
+      'duration',
       'amount',
       'note',
       'product',
@@ -56,7 +56,7 @@ async function parseEasyjob(file, meta, db) {
    * Leistung                => s4            ... 'IVU;29.01.2018;corrections;MontageRetusc'
    * Leistungbesuchreibung   => s5            ... 'IVU;29.01.2018;corrections;MontageRetusc'
    * Std.Art                 => type2         ... 'MontageRetusche'
-   * Stunden                 => hours         ... 0
+   * Stunden                 => duration      ... 0
    * Menge                   => amount        ... 6
    * Text                    => note          ... 'corrections'
    * JobBezeichung           => product       ... 'Diva_01-18_284'
@@ -101,7 +101,7 @@ async function parseEasyjob(file, meta, db) {
       Standardbild: 'standard',
       Cutout: 'cutout',
       MontageRetusche: 'montage',
-      DigitalBriefing: 'briefing',
+      DigitalBriefing: 'cutout',
       Projektleistung: 'project',
       DigitalProgrammierung: 'coding',
       AutomBilder: 'auto',
@@ -147,7 +147,7 @@ async function parseEasyjob(file, meta, db) {
       for (const metaJobs in tableJobs[metaSource][days]) {
         for (const metaTypes in tableJobs[metaSource][days][metaJobs]) {
           for (const metaUsers in tableJobs[metaSource][days][metaJobs][metaTypes]) {
-            const amount = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].amount || 1;
+            const amount = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].amount;
             const duration = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].duration;
             const d_type = tableJobs[metaSource][days][metaJobs][metaTypes][metaUsers].d_type;
             transactionJobs.push({ days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type });

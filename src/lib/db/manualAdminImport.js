@@ -350,7 +350,7 @@ function handleAmount(o) {
     output = Number(o.n);
   }
   if (isNaN(output)) throw new Error(`handleAmount was unable to resolve amount: ${JSON.stringify(o)}`);
-  if (!output) return 1;
+  if (!output) return 0;
   return output;
 }
 
@@ -451,7 +451,7 @@ async function mainParser(meta, db) {
           index += 1;
           if (!datePattern.test(row[2])) console.log(row[2]);
           const dateRaw = datePattern.exec(row[2]);
-          const date = new Date(dateRaw.groups.y, dateRaw.groups.m, dateRaw.groups.d).getTime();
+          const date = new Date(dateRaw.groups.y, dateRaw.groups.m - 1, dateRaw.groups.d).getTime();
           const day = tools.handleDay(date, meta, db);
 
           const user = meta.users.admin[row[1]];
