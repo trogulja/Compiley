@@ -116,7 +116,7 @@ function updateTransaction(transaction, db) {
         db.prepare(job).run();
       } catch (error) {
         console.log(job);
-        console.log(error);
+        console.dir({error});
         continue;
       }
     }
@@ -143,7 +143,7 @@ function vacuum(db) {
 function main(meta, db) {
   // do an sql
   // console.log(extras.humanFileSize(extras.roughSizeOfObject(meta)));
-  console.log(meta.types);
+  // console.log(meta.types);
   const sql = `SELECT helperClaro.id AS helperClaro, jobsAtomic.id AS jobsAtomic, jobs.id AS jobs, jobs.days AS days, jobs.metaTypes, helperClaro.type, helperClaro.pstime, helperClaro.calctime, jobsAtomic.duration AS [jobsAtomic:duration], jobsAtomic.d_type AS [jobsAtomic:d_type], jobs.duration AS [jobs:duration], jobs.d_type AS [jobs:d_type] FROM helperClaro, jobsAtomic LEFT JOIN jobs ON jobsAtomic.jobs = jobs.id LEFT JOIN days ON jobs.days = days.id WHERE (helperClaro.type = 1 OR helperClaro.type = 2) AND helperClaro.processed IS NULL AND helperClaro.filename = jobsAtomic.name AND jobsAtomic.d_type = 4 AND ( (helperClaro.timestamp < jobsAtomic.timestamp1 AND helperClaro.timestamp + 3600000 >= jobsAtomic.timestamp1) OR (helperClaro.timestamp < jobsAtomic.timestamp2 AND helperClaro.timestamp + 3600000 >= jobsAtomic.timestamp2) ) AND helperClaro.metaUsers = jobs.metaUsers;`;
   const results = db.prepare(sql).all();
 

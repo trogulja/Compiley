@@ -91,7 +91,7 @@ Database definitions and column explanations.
 
 ## helperClaro
 - **id**: `INTEGER - primary key, unique, not null`
-- **type**: `INTEGER` *(1 - DTI inspector, 2 - DTI automatic, 3 - KLZ inspector, 4 - KLZ automatic, 5 - KLZ elvis, 6 - other Inspector)*
+- **type**: `INTEGER` *(1 - DTI inspector, 2 - DTI automatic, 3 - KLZ inspector, 4 - KLZ automatic, 5 - KLZ elvis, 6 - other Inspector, 7 - KLZ input images without filename)*
 - **timestamp**: `INTEGER` *(point in time)*
 - **days**: `FOREIGN KEY - days.id | del.CASCADE, upd.CASCADE` *(a link to days table)*
 - **filename**: `STRING` *(need to match with known filenames)*

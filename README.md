@@ -67,8 +67,13 @@ Compile data from multiple sources to produce work report
   - [x] standard
   - [x] automatic
 - [ ] helperClaro match with jobs EasyJob
-- [x] days summify
-  - [x] worktime vs jobs adjust assumed time per day
+- [ ] days summify
+  - [x] sum_images
+  - [x] sum_users
+  - [x] sum_images_atomic
+  - [x] sum_users_atomic
+  - [x] sum_d_working
+  - [ ] sum_d_presence
   - [x] resummify days
   - [ ] report problem inputs
     - [ ] ignore first in month double inputs

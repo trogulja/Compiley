@@ -41,6 +41,11 @@ function main(meta, db) {
       type: 6,
       sql: `SELECT inspectTime AS timestamp, startName AS filename, channel, inspectUsername AS user, inspectPStime AS pstime, inspectCalcTime AS calctime FROM images WHERE (channel = 'Werbemarkt - ColdSet' OR channel = 'Werbemarkt - HeatSet - ISO Coated v2 300' OR channel = 'Werbemarkt - HeatSet - PSO LWC Improved' OR channel = 'Vanjski cro-inspectorEdit') AND timestamp IS NOT NULL;`,
     },
+    {
+      name: 'klzEntryPoint',
+      type: 7,
+      sql: `SELECT endTime AS timestamp, NULL AS filename, channel, inspectUsername AS user, ( (endTime - startTime) / 1000) AS pstime, ( (endTime - startTime) / 1000) AS calctime FROM images WHERE channel = 'klz-00-inputCheck' AND timestamp IS NOT NULL;`
+    }
   ];
 
   const insert = db.prepare(

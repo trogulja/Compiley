@@ -81,7 +81,7 @@ async function gatherAll() {
   houseKeeping(meta, db, true);
 
   db.close();
-  notifier.emit('ok', 'Data gathering completed.');
+  notifier.emit('ok', 'Data gathering and processing completed.');
   notifier.emit('job', 'stopped');
   return true;
 }
@@ -89,6 +89,8 @@ async function gatherAll() {
 function houseKeeping(meta, db, nested) {
   if (!nested) {
     notifier.emit('job', 'started');
+    notifier.emit('job', 100);
+    notifier.emit('ok', 'Processing and matching data in the database.');
     db = database();
     meta = getMeta(db);
   }
@@ -96,6 +98,7 @@ function houseKeeping(meta, db, nested) {
   dbPostImportHouseKeeping(meta, db);
 
   if (!nested) {
+    notifier.emit('ok', 'Data processing completed.');
     notifier.emit('job', 'stopped');
     db.close();
   }
@@ -103,4 +106,4 @@ function houseKeeping(meta, db, nested) {
 }
 
 module.exports = { gatherAll, houseKeeping };
-gatherAll();
+// gatherAll();

@@ -182,4 +182,5 @@ function sendToRenderer(event, text) {
 
 ipcMain.on('job', async function(event, arg) {
   if (arg === 'init') await gatherAll();
+  if (arg === 'check') houseKeeping();
 });
