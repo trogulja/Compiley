@@ -20,6 +20,7 @@ const parseWorktime = require('./lib/file/parseWorktime');
 const parseParte = require('./lib/file/parseParte');
 const parseAdmin = require('./lib/db/manualAdminImport');
 const parseClaro = require('./lib/db/manualClaroImport');
+const dbPostImportHouseKeeping = require('./lib/db/postImportHouseKeeping');
 const path = require('path');
 
 async function gatherFiles(meta, db) {
@@ -76,8 +77,8 @@ async function gatherAll() {
   notifier.emit('ok', 'Getting administration data from google sheets.');
   await parseAdmin(meta, db);
 
-  // notifier.emit('ok', 'Processing and matching data in the database.');
-  // await houseKeeping(meta, db, true);
+  notifier.emit('ok', 'Processing and matching data in the database.');
+  houseKeeping(meta, db, true);
 
   db.close();
   notifier.emit('ok', 'Data gathering completed.');
@@ -85,21 +86,19 @@ async function gatherAll() {
   return true;
 }
 
-async function houseKeeping(meta, db, nested) {
+function houseKeeping(meta, db, nested) {
   if (!nested) {
     notifier.emit('job', 'started');
     db = database();
-    meta = getMeta(db)
+    meta = getMeta(db);
   }
 
-  
-  await dbCheckDTIClaro(meta, db)
-  
-  await dbCheckEasyjobClaro(meta, db)
-  
-  await dbCalcDays(meta, db)
+  dbPostImportHouseKeeping(meta, db);
 
-  if (!nested) notifier.emit('job', 'stopped');
+  if (!nested) {
+    notifier.emit('job', 'stopped');
+    db.close();
+  }
   return true;
 }
 

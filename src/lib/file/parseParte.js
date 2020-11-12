@@ -11,8 +11,8 @@ async function parseParte(file, meta, db) {
   const metaSource = tools.handleSource(file, 'parte', meta, db);
   const metaTypes = meta.types['standard'];
   const metaUsers = null;
-  const duration = 0;
-  const d_type = 4;
+  const duration = 120;
+  const d_type = 3;
 
   const wb = XLSX.readFile(file.path);
   const ws = wb.Sheets[wb.SheetNames[0]];

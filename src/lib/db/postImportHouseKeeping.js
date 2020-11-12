@@ -1,13 +1,6 @@
 'use strict';
 
-const Database = require('better-sqlite3');
-const path = require('path');
-const paths = require('../util/pathHandler');
-const tools = require('./tools');
-const extras = require('../util/extras');
 const notifier = require('../util/notifier');
-const database = require('./init');
-const getMeta = require('./meta');
 
 function calculateDays(db) {
   const sql = db.prepare(
@@ -206,7 +199,10 @@ function main(meta, db) {
   db.close();
 }
 
+module.exports = main;
 // Testing
-const db = database();
-const meta = getMeta(db);
-main(meta, db);
+// const database = require('./init');
+// const getMeta = require('./meta');
+// const db = database();
+// const meta = getMeta(db);
+// main(meta, db);
