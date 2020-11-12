@@ -63,21 +63,21 @@ Compile data from multiple sources to produce work report
   - [x] assign job ID to jobsAtomic, insert transaction
 
 # DB housekeeping
-- [ ] helperClaro match with jobsAtomic DTI
-  - [ ] standard
-  - [ ] automatic
+- [x] helperClaro match with jobsAtomic DTI
+  - [x] standard
+  - [x] automatic
 - [ ] helperClaro match with jobs EasyJob
-- [ ] days summify
-  - [ ] worktime vs jobs adjust assumed time per day
-  - [ ] resummify days
+- [x] days summify
+  - [x] worktime vs jobs adjust assumed time per day
+  - [x] resummify days
   - [ ] report problem inputs
     - [ ] ignore first in month double inputs
 
 # Main logic
 - [x] Controller input
   - [x] get excel files from folder
-  - [ ] get administration from google sheets
-  - [ ] get claro from api
+  - [x] get administration from google sheets
+  - [x] get claro from api
 - [ ] Controller output
   - [ ] define API endpoints
   - [ ] link to excel query
@@ -90,7 +90,7 @@ Compile data from multiple sources to produce work report
   - [x] message display via IPC
   - [x] make event emitter from controller/parsers
   - [x] clear output
-  - [ ] check db button
+  - [x] check db button
     - [ ] report anything wrong in db
     - [ ] report what is missing
 - [ ] configuration modal
@@ -100,3 +100,16 @@ Compile data from multiple sources to produce work report
   - [ ] url for claro
 - [ ] information modal
   - [ ] connect excel to api guide
+
+# DB Check - Error reporting
+- [ ] jobsAtomic have 0 duration
+  - [ ] DTI - meaning we forgot to assign somewhere
+- [ ] jobs have 0 duration or 0 amount
+  - [ ] easyjob - report error in data input (which file, day, user, product)
+  - [ ] administration - report error in data input (which day, user, product)
+  - [ ] anything else should be handled
+  - [ ] dti - report error, we forgot to delete this entry when switching types in jobsAtomic
+- [ ] days
+  - [ ] determine minimum for days sums
+- [ ] check if data is missing
+  - [ ] determine minimum for each data source

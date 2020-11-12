@@ -339,19 +339,19 @@ function resolveAdministration(table) {
 }
 
 function handleAmount(o) {
-  let output = 0;
-  if (o.n === '') {
-    if (o.t1) {
-      if (o.t1 === '' && o.n1 !== '') output = Number(o.n1);
-    } else if (o.t2) {
-      if (o.t2 === '' && o.n2 !== '') output = Number(o.n2);
-    }
-  } else {
-    output = Number(o.n);
-  }
-  if (isNaN(output)) throw new Error(`handleAmount was unable to resolve amount: ${JSON.stringify(o)}`);
-  if (!output) return 0;
-  return output;
+  o = Number(o);
+  if (isNaN(o)) o = 0;
+  return o;
+}
+
+function handleDuration(res) {
+  if (!res.groups) throw new Error(`handleDuration() is missing res.groups: ${JSON.stringify(res)}`);
+  return Number(res.groups.h || 0) * 3600 + Number(res.groups.m || 0) * 60 + Number(res.groups.s || 0);
+}
+
+function reportError(row, string) {
+  console.log(row);
+  throw new Error(string);
 }
 
 // If modifying these scopes, delete token.json.
@@ -455,52 +455,26 @@ async function mainParser(meta, db) {
           const day = tools.handleDay(date, meta, db);
 
           const user = meta.users.admin[row[1]];
-          if (!user) throw new Error(`What do you mean, there's no user ${row[1]} in meta.users.admin?`);
+          if (!user) reportError(row, `${row[1]} in missing in meta.users.admin!`);
+          if (!row[3] || row[3] === '') reportError(row, `row[3] (klijent) should not be empty!`);
+          if (!row[5] || row[5] === '') if (row[4] && row[4] !== '') row[5] = row[4];
+          if (!row[5] || row[5] === '') reportError(row, `row[5] (proizvod) & row[4] (desk) should not be empty!`);
+          if (!productTable[row[3]]) reportError(row, `productTable["${row[3]}"] is not defined!`);
 
-          if (!row[3] || row[3] === '') {
-            console.log(row);
-            throw new Error("What do you mean, there's no row[3] (klijent)?");
-          }
-          if (!row[5] || row[5] === '') {
-            if (row[4] && row[4] !== '') {
-              row[5] = row[4];
-            } else {
-              console.log(row);
-              throw new Error("What do you mean, there's no row[5] (proizvod)?");
-            }
-          }
-          if (!productTable[row[3]]) {
-            console.log(row);
-            throw new Error(`What do you mean, there's no productTable["${row[3]}"]?`);
-          }
           let productRaw = { ...productTable[row[3]], client: row[3], desk: row[4], product: row[5] };
           const product = tools.handleProduct(resolveAdministration(productRaw), meta, db);
 
-          const typeRaw = { standard: false, cutout: false, other: false };
-          if (durationPattern.test(row[7]) || (row[6] && row[6] !== '')) {
-            let dRaw = durationPattern.exec(row[7]);
-            let duration = dRaw
-              ? Number(dRaw.groups.h || 0) * 3600 + Number(dRaw.groups.m || 0) * 60 + Number(dRaw.groups.s || 0)
-              : null;
-            let amount = handleAmount({ n: row[6], t1: row[9], n1: row[8], t2: row[11], n2: row[10], raw: row });
-            typeRaw.standard = { duration, amount };
-          }
-          if (durationPattern.test(row[9]) || (row[8] && row[8] !== '')) {
-            let dRaw = durationPattern.exec(row[9]);
-            let duration = dRaw
-              ? Number(dRaw.groups.h || 0) * 3600 + Number(dRaw.groups.m || 0) * 60 + Number(dRaw.groups.s || 0)
-              : null;
-            let amount = handleAmount({ n: row[8], t1: row[7], n1: row[6], t2: row[11], n2: row[10], raw: row });
-            typeRaw.cutout = { duration, amount };
-          }
-          if (durationPattern.test(row[11]) || (row[10] && row[10] !== '')) {
-            let dRaw = durationPattern.exec(row[11]);
-            let duration = dRaw
-              ? Number(dRaw.groups.h || 0) * 3600 + Number(dRaw.groups.m || 0) * 60 + Number(dRaw.groups.s || 0)
-              : null;
-            let amount = handleAmount({ n: row[10], t1: row[7], n1: row[6], t2: row[9], n2: row[8], raw: row });
-            typeRaw.other = { duration, amount };
-          }
+          const typeRaw = {
+            standard: { duration: 0, amount: 0 },
+            cutout: { duration: 0, amount: 0 },
+            other: { duration: 0, amount: 0 },
+          };
+          if (row[6] && row[6] !== '') typeRaw.standard.amount = handleAmount(row[6]);
+          if (durationPattern.test(row[7])) typeRaw.standard.duration = handleDuration(durationPattern.exec(row[7]));
+          if (row[8] && row[8] !== '') typeRaw.cutout.amount = handleAmount(row[8]);
+          if (durationPattern.test(row[9])) typeRaw.cutout.duration = handleDuration(durationPattern.exec(row[9]));
+          if (row[10] && row[10] !== '') typeRaw.other.amount = handleAmount(row[10]);
+          if (durationPattern.test(row[11])) typeRaw.other.duration = handleDuration(durationPattern.exec(row[11]));
 
           // Provjera
           // console.log(row, product);
@@ -557,12 +531,6 @@ async function mainParser(meta, db) {
               setWith(output, `[${day}][${product}][${user}][${type}]`, { id: index, amount, duration }, Object);
             }
           }
-
-          // day -> product -> user -> type
-          // const exists = get(output, `[${day}][${product}][${user}][${type}]`, false);
-
-          // if (!exists) setWith(output, `["${klijent}"]["${desk}"]`, new Set(), Object);
-          // output[klijent][desk].add(proizvod);
         }
         // console.log(JSON.stringify(unique, null, 3));
         notifier.emit('ok', `Parsed ${extras.humanFileSize(extras.roughSizeOfObject(output))} in output object...`);
@@ -583,16 +551,6 @@ async function mainParser(meta, db) {
         tools.insertTransactionJobs(transactionJobs, db);
 
         return true;
-
-        function Set_toJSON(key, value) {
-          if (typeof value === 'object' && value instanceof Set) {
-            return [...value];
-          }
-          return value;
-        }
-
-        await fs.writeFile(path.join(paths.db, 'administracija.json'), JSON.stringify(unique, Set_toJSON, 6), 'utf-8');
-        return true;
       } else {
         notifier.emit('error', 'No data found.');
       }
@@ -611,6 +569,7 @@ async function mainParser(meta, db) {
   try {
     result = await authorize(JSON.parse(content), getAdmin);
   } catch (err) {
+    console.log(err);
     console.log('Ovdje ne bi trebalo doć do errora.');
   }
 

@@ -23,7 +23,7 @@ const parseClaro = require('./lib/db/manualClaroImport');
 const path = require('path');
 
 async function gatherFiles(meta, db) {
-  console.log(__dirname);
+  // console.log(__dirname);
   const dataFolder = path.join(__dirname, '..', 'data');
   const files = await getFiles(dataFolder, meta);
 
