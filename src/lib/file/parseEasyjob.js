@@ -20,30 +20,37 @@ async function parseEasyjob(file, meta, db) {
   // Check for existing source, drop it from db if found!
   const source = tools.handleSource(file, 'easyjob', meta, db);
 
-  const wb = XLSX.readFile(file.path);
-  const ws = wb.Sheets['GMI Stundenabfrage'];
-  const sheet = XLSX.utils.sheet_to_json(ws, {
-    header: [
-      'date',
-      'user',
-      'u',
-      's1',
-      's2',
-      's3',
-      'type',
-      's4',
-      's5',
-      'type2',
-      'duration',
-      'amount',
-      'note',
-      'product',
-      'jobnr',
-      'client',
-      'product_group',
-      'print_type',
-    ],
-  });
+  let wb, ws, sheet;
+  try {
+    wb = XLSX.readFile(file.path);
+    ws = wb.Sheets['GMI Stundenabfrage'];
+    sheet = XLSX.utils.sheet_to_json(ws, {
+      header: [
+        'date',
+        'user',
+        'u',
+        's1',
+        's2',
+        's3',
+        'type',
+        's4',
+        's5',
+        'type2',
+        'duration',
+        'amount',
+        'note',
+        'product',
+        'jobnr',
+        'client',
+        'product_group',
+        'print_type',
+      ],
+    });
+  } catch (error) {
+    notifier.emit('error', `Unable to process file: ${file.path}, check for filters!`);
+    console.log(error);
+    return;
+  }
 
   /**
    * Datum                   => date          ... '29.01.18'

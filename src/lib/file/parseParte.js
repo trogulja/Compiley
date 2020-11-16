@@ -14,9 +14,16 @@ async function parseParte(file, meta, db) {
   const duration = 120;
   const d_type = 3;
 
-  const wb = XLSX.readFile(file.path);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const sheet = XLSX.utils.sheet_to_json(ws, { header: ['id', 's1', 's2', 'user', 'time'] });
+  let wb, ws, sheet;
+  try {
+    wb = XLSX.readFile(file.path);
+    ws = wb.Sheets[wb.SheetNames[0]];
+    sheet = XLSX.utils.sheet_to_json(ws, { header: ['id', 's1', 's2', 'user', 'time'] });
+  } catch (error) {
+    notifier.emit('error', `Unable to process file: ${file.path}, check for filters!`);
+    console.log(error);
+    return;
+  }
 
   const transactionJobsAtomic = [];
   const tableJobs = {};
@@ -58,7 +65,10 @@ async function parseParte(file, meta, db) {
     const oldID = tableJobs[days].id;
     const amount = tableJobs[days].amount;
 
-    const jobid = tools.insertNewJob({ days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type }, db);
+    const jobid = tools.insertNewJob(
+      { days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type },
+      db
+    );
     if (jobid) tableJobsId[oldID] = jobid;
   }
 

@@ -148,6 +148,7 @@ api.use(express.json({ limit: '100MB' }));
 api.use(cors());
 api.use('/compact', require('./lib/api/compact'));
 api.use('/klzclaro', require('./lib/api/klzClaroSummary'));
+api.use('/worktime', require('./lib/api/worktime'));
 
 const server = api.listen(port, () => console.log(`Server started on port ${port}`));
 

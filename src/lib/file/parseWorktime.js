@@ -10,9 +10,16 @@ const { setWith, get } = require('lodash');
 async function parseWorktime(file, meta, db) {
   const source = tools.handleSource(file, 'worktime', meta, db);
 
-  const wb = XLSX.readFile(file.path);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const sheet = XLSX.utils.sheet_to_json(ws);
+  let wb, ws, sheet;
+  try {
+    wb = XLSX.readFile(file.path);
+    ws = wb.Sheets[wb.SheetNames[0]];
+    sheet = XLSX.utils.sheet_to_json(ws);
+  } catch (error) {
+    notifier.emit('error', `Unable to process file: ${file.path}, check for filters!`);
+    console.log(error);
+    return;
+  }
 
   const workTimeRange1 = /.* (?<m>\d+)\/(?<d>\d+)\/(?<y>\d+) - (?<m2>\d+)\/(?<d2>\d+)\/(?<y2>\d+).*/;
   const workTimeRange2 = /.* (?<d>\d+)\.(?<m>\d+)\.(?<y>\d+)\. - (?<d2>\d+)\.(?<m2>\d+)\.(?<y2>\d+)\..*/;

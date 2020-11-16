@@ -44,9 +44,17 @@ async function parseDTI(file, meta, db) {
   const client = prodMatch;
   const product_group = 'DTI';
 
-  const wb = XLSX.readFile(file.path);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const sheet = XLSX.utils.sheet_to_json(ws);
+  let wb, ws, sheet;
+  try {
+    wb = XLSX.readFile(file.path);
+    ws = wb.Sheets[wb.SheetNames[0]];
+    sheet = XLSX.utils.sheet_to_json(ws);
+  } catch (error) {
+    notifier.emit('error', `Unable to process file: ${file.path}, check for filters!`);
+    console.log(error);
+    return;
+  }
+
   const jobsAtomic = new Datastore();
   const m4status = new Datastore();
 

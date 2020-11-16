@@ -354,6 +354,32 @@ function reportError(row, string) {
   throw new Error(string);
 }
 
+function checkDate(date, raw, dateRaw, dayId, meta) {
+  const d = new Date(date);
+  const day = d.getDate();
+  const month = d.getMonth() + 1;
+  const year = d.getFullYear();
+
+  const compare = `${day}.${month}.${year}.`;
+  let fail = false;
+
+  if (compare !== raw) fail = true
+
+  if (!meta.days[year]) {
+    fail = true
+  } else if (!meta.days[year][month]) {
+    fail = true
+  } else if (!meta.days[year][month][day]) {
+    fail = true
+  } else if (meta.days[year][month][day] !== dayId) {
+    fail = true
+  }
+
+
+  if (fail) console.log('Wrong date!', compare, raw, dateRaw);
+
+}
+
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 // The file token.json stores the user's access and refresh tokens, and is
@@ -427,7 +453,7 @@ async function mainParser(meta, db) {
          *  [11]  'ot'         '',
          *  [12]  'opis'       'BUDI IN EDITORIAL CHIC'
          */
-        const datePattern = /(?<d>\d+)\.(?<m>\d+)\.(?<y>\d+)\./;
+        const datePattern = /(?<d>\d+)\.(?<m>\d+)\.(?<y>\d+)\.?/;
         const durationPattern = /(?<h>\d+)\:(?<m>\d+)(?:\:(?<s>\d+))?/;
 
         const output = {};
@@ -452,7 +478,9 @@ async function mainParser(meta, db) {
           if (!datePattern.test(row[2])) console.log(row[2]);
           const dateRaw = datePattern.exec(row[2]);
           const date = new Date(dateRaw.groups.y, dateRaw.groups.m - 1, dateRaw.groups.d).getTime();
+          
           const day = tools.handleDay(date, meta, db);
+          // checkDate(date, row[2], dateRaw, day, meta);
 
           const user = meta.users.admin[row[1]];
           if (!user) reportError(row, `${row[1]} in missing in meta.users.admin!`);
