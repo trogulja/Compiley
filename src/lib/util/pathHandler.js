@@ -53,6 +53,6 @@ const db_file = path.join(paths.root, 'db', 'compiley.db');
 // if there is no db, we can init with default data
 
 paths.database = db_file;
-// console.log(paths);
+console.log(paths);
 
 module.exports = paths;

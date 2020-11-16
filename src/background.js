@@ -5,6 +5,7 @@ const windowStateKeeper = require('electron-window-state');
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 const isDevelopment = process.env.NODE_ENV !== 'production';
+// const isDevelopment = true;
 const path = require('path');
 if (isDevelopment) require('dotenv').config();
 
@@ -56,7 +57,7 @@ async function createWindow() {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       preload: path.join(__dirname, 'preload.js'),
     },
-    icon: path.join(__dirname, '..', 'public', 'favicon.ico'),
+    icon: isDevelopment ? path.join(__dirname, '..', 'public', 'favicon.ico') : path.join(__dirname, 'favicon.ico'),
   });
 
   winState.manage(win);

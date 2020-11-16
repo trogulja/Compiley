@@ -7,9 +7,6 @@ module.exports = {
       mainProcessFile: 'src/background.js',
       rendererProcessFile: 'src/main.js',
       removeElectronJunk: true,
-      builderOptions: {
-
-      }
-    }
-  }
+    },
+  },
 };

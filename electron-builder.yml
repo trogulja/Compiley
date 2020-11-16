@@ -1,4 +1,0 @@
-appId: com.compiley.app
-productName: Compiley app
-directories:
-  buildResources: dist_electron/bundled
