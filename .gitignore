@@ -118,6 +118,11 @@ db/*.json
 db/*.csv
 
 # Data stuff
+data/_2013/
+data/_2014/
+data/_2015/
+data/_2016/
+data/_2017/
 data/2018/
 data/2019/
 data/2020/

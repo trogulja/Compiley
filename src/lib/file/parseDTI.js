@@ -36,8 +36,12 @@ async function parseDTI(file, meta, db) {
     }
   }
 
-  if (!prodMatch) console.log(file);
-  if (!prodMatch) throw new Error('What do you mean, unknown prod?');
+  if (!prodMatch) {
+    notifier.emit('warn', `Ignoring unkown file ${file.name}.`);
+    return false;
+  }
+  // if (!prodMatch) console.log(file);
+  // if (!prodMatch) throw new Error('What do you mean, unknown prod?');
 
   const country = 'HR';
   const client_group = 'interni';

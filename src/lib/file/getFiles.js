@@ -4,7 +4,7 @@ const fileGroup = {
   dti: /Slike.+_\d{4}(?:-\d{2}){5}\.xlsx?/,
   parte: /Slike ?parte ?\d+\.\d+\.xlsx?/i,
   claro: /Neki regex za claro/,
-  easyjob: /EasyJob_\d{4}.xlsx?/,
+  easyjob: /EasyJob_(?:\d{4}|\d+mj).xlsx?/,
   worktime: /Dnevni izvještaj m4 \d{2} \d{4}.xlsx?/,
   admin: /Neki regex za admin/,
 };

@@ -5,6 +5,7 @@ const XLSX = require('xlsx');
 const eh = require('../util/excelHelper');
 const tools = require('../db/tools');
 const { setWith, get } = require('lodash');
+const notifier = require('../util/notifier');
 // #endregion
 
 async function parseEasyjob(file, meta, db) {
@@ -111,12 +112,20 @@ async function parseEasyjob(file, meta, db) {
       DigitalBriefing: 'cutout',
       Projektleistung: 'project',
       DigitalProgrammierung: 'coding',
+      'Digital Programmierung': 'coding',
       AutomBilder: 'auto',
       HalbautomBilder: 'halfauto',
       AnzeigeGestalten: 'standard',
       'Fixkosten inkl.Gewinnaufschl. ger.Seiten': 'standard',
+      'Standardbild/Standard Picture': 'standard',
+      'Freisteller/Cutout': 'cutout',
+      'Freisteller / Cutouts': 'cutout',
+      Administration: 'var',
+      'Montage/Retusche': 'montage',
+      'Amendo Bilder in Stück': 'var',
+      Bildbearbeitungspauschale: 'var',
     };
-    const type = row.type ? meta.types[typeOptions[row.type]] : row.type2 ? meta.types[typeOptions[row.type2]] : false;
+    let type = row.type ? meta.types[typeOptions[row.type]] : row.type2 ? meta.types[typeOptions[row.type2]] : false;
 
     if (type === false) continue; // user never entered type in easyjob, skip it
 
@@ -125,7 +134,16 @@ async function parseEasyjob(file, meta, db) {
       console.log(row);
       console.log('typeOptions[row.type]', typeOptions[row.type]);
       console.log(meta.types);
-      throw new Error('What do you mean, type undefined?!');
+      type = meta.types['var'];
+      // throw new Error('What do you mean, type undefined?!');
+    }
+
+    if (type === meta.types['var']) {
+      notifier.emit(
+        'error',
+        `Unknow type in file ${file.name}, Datum: ${row.date}, Mitarbeiter: ${row.user}, Leistungsart: ${row.type ||
+          row.type2}, JobBezeichung: ${row.product}`
+      );
     }
 
     if (day === 59 && product === 82 && source === 2052 && user === 7) console.log(row);
@@ -163,7 +181,9 @@ async function parseEasyjob(file, meta, db) {
       }
     }
   }
-  tools.insertTransactionJobs(transactionJobs, db);
+  const success = tools.insertTransactionJobs(transactionJobs, db);
+
+  if (!success) notifier.emit('error', `Failed insertTransactionJobs() for file ${file.name} - duplicates?`);
 
   return true;
 }

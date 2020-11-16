@@ -1,4 +1,5 @@
 const { setWith, get } = require('lodash');
+const notifier = require('../util/notifier');
 
 function handleProduct(p, meta, db) {
   /**
@@ -156,19 +157,22 @@ function insertTransactionJobs(transaction, db) {
     'INSERT INTO jobs (days, metaJobs, metaSource, metaTypes, metaUsers, amount, duration, d_type) VALUES (@days, @metaJobs, @metaSource, @metaTypes, @metaUsers, @amount, @duration, @d_type)'
   );
 
+  let failed = false;
   const insertMany = db.transaction((jobs) => {
     for (const job of jobs) {
       try {
         insert.run(job);
       } catch (error) {
+        failed = true;
         console.log(job);
         console.log(error);
-        throw new Error('There is something wrong with this job');
+        // throw new Error('There is something wrong with this job');
       }
     }
   });
 
   insertMany(transaction);
+  if (failed) return false;
   return true;
 }
 
