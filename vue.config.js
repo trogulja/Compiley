@@ -3,7 +3,13 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       preload: 'src/preload.js',
-      externals: ['better-sqlite3']
+      externals: ['better-sqlite3'],
+      mainProcessFile: 'src/background.js',
+      rendererProcessFile: 'src/main.js',
+      removeElectronJunk: true,
+      builderOptions: {
+
+      }
     }
   }
 };
