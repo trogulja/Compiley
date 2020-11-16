@@ -22,10 +22,16 @@ const parseAdmin = require('./lib/db/manualAdminImport');
 const parseClaro = require('./lib/db/manualClaroImport');
 const dbPostImportHouseKeeping = require('./lib/db/postImportHouseKeeping');
 const path = require('path');
+const fs = require('fs');
 
 async function gatherFiles(meta, db) {
   // console.log(__dirname);
-  const dataFolder = path.join(__dirname, '..', 'data');
+  let dataFolder = 'X:\\M4Cro\\REPORTS Quantity - picture';
+  try {
+    fs.accessSync(dataFolder, fs.constants.F_OK | fs.constants.W_OK);
+  } catch (error) {
+    dataFolder = path.join(__dirname, '..', 'data');
+  }
   const files = await getFiles(dataFolder, meta);
 
   let currentFile = 0;
