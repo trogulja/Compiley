@@ -4,7 +4,7 @@ const notifier = require('../util/notifier');
 
 function calculateDays(db) {
   const sql = db.prepare(
-    'UPDATE days SET sum_images = ( SELECT sum(amount) FROM jobs WHERE jobs.days = days.id ), sum_users = ( SELECT DISTINCT (metaUsers) FROM jobs WHERE jobs.days = days.id ), sum_images_atomic = ( SELECT count( * ) FROM jobsAtomic LEFT JOIN jobs ON jobsAtomic.jobs = jobs.id WHERE jobs.days = days.id ), sum_users_atomic = ( SELECT DISTINCT (jobs.metaUsers) FROM jobsAtomic LEFT JOIN jobs ON jobsAtomic.jobs = jobs.id WHERE jobs.days = days.id ), sum_d_working = ( SELECT sum(duration) FROM jobs WHERE jobs.days = days.id ), sum_d_presence = ( SELECT sum(d_presence) FROM worktime WHERE worktime.days = days.id );'
+    'UPDATE days SET sum_images = ( SELECT sum(amount) FROM jobs WHERE jobs.days = days.id ), sum_users = ( SELECT count(DISTINCT (metaUsers)) FROM jobs WHERE jobs.days = days.id AND jobs.metaUsers IS NOT NULL ), sum_images_atomic = ( SELECT count( * ) FROM jobsAtomic LEFT JOIN jobs ON jobsAtomic.jobs = jobs.id WHERE jobs.days = days.id ), sum_users_atomic = ( SELECT count(DISTINCT (jobs.metaUsers)) FROM jobsAtomic LEFT JOIN jobs ON jobsAtomic.jobs = jobs.id WHERE jobs.days = days.id AND jobs.metaUsers IS NOT NULL ), sum_d_working = ( SELECT sum(duration) FROM jobs WHERE jobs.days = days.id ), sum_d_presence = ( SELECT sum(d_presence) FROM worktime WHERE worktime.days = days.id );'
   );
 
   try {

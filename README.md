@@ -118,3 +118,8 @@ Compile data from multiple sources to produce work report
   - [ ] determine minimum for days sums
 - [ ] check if data is missing
   - [ ] determine minimum for each data source
+
+# Popravci
+- [ ] claro inspector / automatic - informacije po user/danu original i kalkulirano vrijeme
+- [ ] api broj slika po satu (iz jobsAtomica i helperClara)
+- [ ] dodat nekako preracunavanje vremena (provjera koja je prije bila, koja smanjuje vrijeme ovisno o prisustvu)

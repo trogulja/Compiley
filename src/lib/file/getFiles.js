@@ -5,7 +5,7 @@ const fileGroup = {
   parte: /Slike ?parte ?\d+\.\d+\.xlsx?/i,
   claro: /Neki regex za claro/,
   easyjob: /EasyJob_(?:\d{4}|\d+mj).xlsx?/,
-  worktime: /Dnevni izvještaj m4 \d{2} \d{4}.xlsx?/,
+  worktime: /Dnevni izvještaj m4 \d{2} \d{4}.xlsx?/i,
   admin: /Neki regex za admin/,
 };
 const tmpFile = /~\$.+\.xls/i;
