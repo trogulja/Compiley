@@ -149,6 +149,10 @@ api.use(cors());
 api.use('/compact', require('./lib/api/compact'));
 api.use('/klzclaro', require('./lib/api/klzClaroSummary'));
 api.use('/worktime', require('./lib/api/worktime'));
+api.use('/dailywork', require('./lib/api/dailyWorkDuration'));
+api.use('/problems/amount', require('./lib/api/problems/amount'));
+api.use('/problems/duration', require('./lib/api/problems/duration'));
+api.use('/problems/worktime', require('./lib/api/problems/worktime'));
 
 const server = api.listen(port, () => console.log(`Server started on port ${port}`));
 

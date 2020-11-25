@@ -2,10 +2,10 @@ const fs = require('fs').promises;
 const path = require('path');
 const fileGroup = {
   dti: /Slike.+_\d{4}(?:-\d{2}){5}\.xlsx?/,
-  parte: /Slike ?parte ?\d+\.\d+\.xlsx?/i,
+  parte: /(?:(?:Slike|parte)[ _](?:parte|slike)[ _]|Parte[_ ](?:Report )?)\d{1,2}[\. ]?(?:\d{4}|mjesec|mj).*\.xlsx?/i,
   claro: /Neki regex za claro/,
   easyjob: /EasyJob_(?:\d{4}|\d+mj).xlsx?/,
-  worktime: /Dnevni izvještaj m4 \d{2} \d{4}.xlsx?/i,
+  worktime: /(?:Dnevni |m4 )*izvje[sš]taj (?:m4 )?\d{2} \d{4}(?:_time)?.xlsx?/i,
   admin: /Neki regex za admin/,
 };
 const tmpFile = /~\$.+\.xls/i;
