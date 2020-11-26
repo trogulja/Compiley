@@ -105,21 +105,22 @@ Compile data from multiple sources to produce work report
   - [ ] url for claro
 - [ ] information modal
   - [ ] connect excel to api guide
+  - [x] list api routes
 
 # DB Check - Error reporting
-- [ ] jobsAtomic have 0 duration
-  - [ ] DTI - meaning we forgot to assign somewhere
-- [ ] jobs have 0 duration or 0 amount
-  - [ ] easyjob - report error in data input (which file, day, user, product)
-  - [ ] administration - report error in data input (which day, user, product)
-  - [ ] anything else should be handled
-  - [ ] dti - report error, we forgot to delete this entry when switching types in jobsAtomic
-- [ ] days
-  - [ ] determine minimum for days sums
-- [ ] check if data is missing
-  - [ ] determine minimum for each data source
+- [x] jobsAtomic have 0 duration
+  - [x] DTI - meaning we forgot to assign somewhere
+- [x] jobs have 0 duration or 0 amount
+  - [x] easyjob - report error in data input (which file, day, user, product)
+  - [x] administration - report error in data input (which day, user, product)
+  - [x] anything else should be handled
+  - [x] dti - report error, we forgot to delete this entry when switching types in jobsAtomic
+- [x] days
+  - [x] determine minimum for days sums
+- [x] check if data is missing
+  - [x] determine minimum for each data source
 
 # Popravci
 - [ ] claro inspector / automatic - informacije po user/danu original i kalkulirano vrijeme
-- [ ] api broj slika po satu (iz jobsAtomica i helperClara)
+- [ ] api broj slika po satu (iz jobsAtomica i helperClara - SAT1, SAT2 u excelici)
 - [ ] dodat nekako preracunavanje vremena (provjera koja je prije bila, koja smanjuje vrijeme ovisno o prisustvu)
