@@ -74,6 +74,8 @@ export default {
           { url: '/worktime', desc: 'Worktime podaci' },
           { url: '/klzclaro', desc: 'Broj slika po mjesecima koje su prošle kroz claro' },
           { url: '/dailywork', desc: 'Suma vremena rada za 24h, VL, PD i Austriju po danima - Presence amount i duration je bez Dejana Kumpara' },
+          { url: '/hourly', desc: 'Broj slika i trajanje utrošeno na njih grupirano po satima' },
+          { url: '/extratimeau', desc: 'Razlika vremena za AU claro (calctime - pstime) grupirano po danima/korisnicima' },
           { url: '/metajobs', desc: 'Popis svih prisutnih poslova u bazi i njihove postavke' },
         ],
       },

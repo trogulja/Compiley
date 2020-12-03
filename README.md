@@ -121,6 +121,9 @@ Compile data from multiple sources to produce work report
   - [x] determine minimum for each data source
 
 # Popravci
-- [ ] claro inspector / automatic - informacije po user/danu original i kalkulirano vrijeme
-- [ ] api broj slika po satu (iz jobsAtomica i helperClara - SAT1, SAT2 u excelici)
+- [x] claro inspector / automatic - informacije po user/danu original i kalkulirano vrijeme
+- [x] api broj slika po satu (iz jobsAtomica i helperClara - SAT1, SAT2 u excelici)
 - [ ] dodat nekako preracunavanje vremena (provjera koja je prije bila, koja smanjuje vrijeme ovisno o prisustvu)
+
+# ToDo
+- [ ] TenserFlowJS predikcija za amount/duration po danu u tjednu/mjesecu u godini

@@ -41,10 +41,27 @@ function checkDbTables(db) {
     helperClaro,
   ];
 
+  const table_indexes = [
+    'CREATE INDEX IF NOT EXISTS helperClaroDaysIndex ON helperClaro ( days );',
+    'CREATE INDEX IF NOT EXISTS helperClaroTypeIndex ON helperClaro ( type );',
+    'CREATE INDEX IF NOT EXISTS jobsDaysIndex ON jobs ( days );',
+    'CREATE INDEX IF NOT EXISTS worktimeDaysIndex ON worktime ( days );',
+  ];
+
   let output = true;
   for (const table of table_check_order) {
     try {
       db.prepare(table).run();
+    } catch (error) {
+      console.log(error);
+      output = false;
+      continue;
+    }
+  }
+
+  for (const index of table_indexes) {
+    try {
+      db.prepare(index).run();
     } catch (error) {
       console.log(error);
       output = false;

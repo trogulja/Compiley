@@ -151,6 +151,8 @@ api.use('/worktime', require('./lib/api/worktime'));
 api.use('/metajobs', require('./lib/api/metaJobs'));
 api.use('/klzclaro', require('./lib/api/klzClaroSummary'));
 api.use('/dailywork', require('./lib/api/dailyWorkDuration'));
+api.use('/hourly', require('./lib/api/hourly'));
+api.use('/extratimeau', require('./lib/api/extraTimeAU'));
 api.use('/problems/amount', require('./lib/api/problems/amount'));
 api.use('/problems/duration', require('./lib/api/problems/duration'));
 api.use('/problems/worktime', require('./lib/api/problems/worktime'));
