@@ -44,7 +44,7 @@ function main(meta, db) {
     {
       name: 'klzEntryPoint',
       type: 7,
-      sql: `SELECT endTime AS timestamp, NULL AS filename, channel, inspectUsername AS user, ( (endTime - startTime) / 1000) AS pstime, ( (endTime - startTime) / 1000) AS calctime FROM images WHERE channel = 'klz-00-inputCheck' AND timestamp IS NOT NULL;`
+      sql: `SELECT endTime AS timestamp, startName AS filename, channel, inspectUsername AS user, ( (endTime - startTime) / 1000) AS pstime, ( (endTime - startTime) / 1000) AS calctime FROM images WHERE channel = 'klz-00-inputCheck' AND timestamp IS NOT NULL;`
     }
   ];
 
