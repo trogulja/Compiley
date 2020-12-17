@@ -1,6 +1,7 @@
 'use strict';
 
-import { app, protocol, BrowserWindow, Menu, ipcMain, autoUpdater } from 'electron';
+import { app, protocol, BrowserWindow, Menu, ipcMain } from 'electron';
+const { autoUpdater } = require('electron-updater');
 const windowStateKeeper = require('electron-window-state');
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
@@ -118,6 +119,9 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString());
     }
   }
+  if (!isDevelopment) {
+    autoUpdater.checkForUpdatesAndNotify();
+  }
   createWindow();
 });
 
@@ -135,6 +139,55 @@ if (isDevelopment) {
     });
   }
 }
+
+/**
+ * Logs
+ */
+const log = require('electron-log');
+if (!isDevelopment) {
+  Object.assign(console, log.functions);
+  log.transports.file.level = 'debug';
+  autoUpdater.logger = log;
+}
+
+// Handle errors
+log.catchErrors({
+  showDialog: false,
+  onError(error, versions, submitIssue) {
+    electron.dialog
+      .showMessageBox({
+        title: 'An error occurred',
+        message: error.message,
+        detail: error.stack,
+        type: 'error',
+        buttons: ['Ignore', 'Report', 'Exit'],
+      })
+      .then((result) => {
+        log.error(
+          'Error (' +
+            error.message +
+            '):\n```' +
+            error.stack +
+            '\n```\n' +
+            `OS: ${versions.os}` +
+            '\n```App: ' +
+            versions.app
+        );
+
+        if (result.response === 1) {
+          submitIssue('https://github.com/trogulja/Compiley/issues/new', {
+            title: `Error report for ${versions.app}`,
+            body: 'Error:\n```' + error.stack + '\n```\n' + `OS: ${versions.os}`,
+          });
+          return;
+        }
+
+        if (result.response === 2) {
+          electron.app.quit();
+        }
+      });
+  },
+});
 
 /**
  * API serving logic
