@@ -22,7 +22,7 @@
 
 const path = require('path');
 const fs = require('fs');
-import { app } from 'electron';
+const { app } = require('electron')
 const paths = { root: '', db: '' };
 
 let appType = 'prod';
