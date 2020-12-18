@@ -22,6 +22,7 @@
 
 const path = require('path');
 const fs = require('fs');
+import { app } from 'electron';
 const paths = { root: '', db: '' };
 
 let app = 'prod';
@@ -42,7 +43,7 @@ if (app === 'prod') {
   else throw new Error(`Path is unexpected, check it: ${__dirname}`);
   paths.root = path.join(...frag);
 } else if (app === 'installed') {
-  paths.root = path.join(path.dirname(process.execPath));
+  paths.root = app.getPath('userData');
 }
 
 paths.db = path.join(paths.root, 'db');
