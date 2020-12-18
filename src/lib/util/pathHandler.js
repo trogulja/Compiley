@@ -42,7 +42,7 @@ if (app === 'prod') {
   else throw new Error(`Path is unexpected, check it: ${__dirname}`);
   paths.root = path.join(...frag);
 } else if (app === 'installed') {
-  paths.root = path.join(path.dirname(process.execPath), '..');
+  paths.root = path.join(path.dirname(process.execPath));
 }
 
 paths.db = path.join(paths.root, 'db');
@@ -53,6 +53,7 @@ const db_file = path.join(paths.root, 'db', 'compiley.db');
 // if there is no db, we can init with default data
 
 paths.database = db_file;
-console.log(paths);
+console.log({app})
+console.log({paths});
 
 module.exports = paths;
