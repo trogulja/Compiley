@@ -46,6 +46,8 @@ function checkDbTables(db) {
     'CREATE INDEX IF NOT EXISTS helperClaroTypeIndex ON helperClaro ( type );',
     'CREATE INDEX IF NOT EXISTS jobsDaysIndex ON jobs ( days );',
     'CREATE INDEX IF NOT EXISTS worktimeDaysIndex ON worktime ( days );',
+    'CREATE INDEX IF NOT EXISTS helperClaroFilenameIndex ON helperClaro ( filename );',
+    'CREATE INDEX IF NOT EXISTS jobsAtomicNameIndex ON jobsAtomic ( name );',
   ];
 
   let output = true;
