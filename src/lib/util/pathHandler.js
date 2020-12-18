@@ -25,14 +25,14 @@ const fs = require('fs');
 import { app } from 'electron';
 const paths = { root: '', db: '' };
 
-let app = 'prod';
-if (process.execPath.search('electron.exe') >= 0) app = 'dev';
-if (process.execPath.search('node.exe') >= 0) app = 'test';
-if (process.execPath.search('AppData') >= 0) app = 'installed';
+let appType = 'prod';
+if (process.execPath.search('electron.exe') >= 0) appType = 'dev';
+if (process.execPath.search('node.exe') >= 0) appType = 'test';
+if (process.execPath.search('AppData') >= 0) appType = 'installed';
 
-if (app === 'prod') {
+if (appType === 'prod') {
   paths.root = path.join(path.dirname(process.execPath), 'resources');
-} else if (app === 'dev' || app == 'test') {
+} else if (appType === 'dev' || appType == 'test') {
   let frag = __dirname.split(path.sep);
   let searchable = false;
 
@@ -42,7 +42,7 @@ if (app === 'prod') {
   if (searchable) frag.length = frag.indexOf(searchable);
   else throw new Error(`Path is unexpected, check it: ${__dirname}`);
   paths.root = path.join(...frag);
-} else if (app === 'installed') {
+} else if (appType === 'installed') {
   paths.root = app.getPath('userData');
 }
 
@@ -54,7 +54,7 @@ const db_file = path.join(paths.root, 'db', 'compiley.db');
 // if there is no db, we can init with default data
 
 paths.database = db_file;
-console.log({app})
-console.log({paths});
+console.log({ appType });
+console.log({ paths });
 
 module.exports = paths;
