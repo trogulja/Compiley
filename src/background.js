@@ -148,6 +148,29 @@ if (!isDevelopment) {
   Object.assign(console, log.functions);
   log.transports.file.level = 'debug';
   autoUpdater.logger = log;
+  autoUpdater.logger.transports.file.level = 'info';
+
+  autoUpdater.on('checking-for-update', () => {
+    log.info('Checking for update...');
+  });
+  autoUpdater.on('update-available', (info) => {
+    log.info('Update available.');
+  });
+  autoUpdater.on('update-not-available', (info) => {
+    log.info('Update not available.');
+  });
+  autoUpdater.on('error', (err) => {
+    log.error('Error in auto-updater. ' + err);
+  });
+  autoUpdater.on('download-progress', (progressObj) => {
+    let log_message = 'Download speed: ' + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+    log_message = log_message + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+    log.info(log_message);
+  });
+  autoUpdater.on('update-downloaded', (info) => {
+    log.info('Update downloaded');
+  });
 }
 
 // Handle errors
@@ -243,7 +266,7 @@ function sendToRenderer(event, text) {
   win.webContents.send('log', { event, time, text });
 }
 
-ipcMain.on('job', async function(event, arg) {
+ipcMain.on('job', async function (event, arg) {
   if (arg === 'init') await gatherAll();
   if (arg === 'check') houseKeeping();
 });
