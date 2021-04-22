@@ -15,11 +15,14 @@
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "electron:draft": "vue-cli-service electron:build -p always",
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "skip-postinstall || electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "webpack:showerror": "webpack --display-error-details",
-    "sqlite": "electron-rebuild -f -w better-sqlite3",
-    "sqlite-reset": "yarn add better-sqlite3"
+    "sqlite": "cross-env SKIP_POSTINSTALL=0 electron-rebuild -f -w better-sqlite3",
+    "sqlite-reset": "cross-env SKIP_POSTINSTALL=1 yarn add better-sqlite3",
+    "postoff": "cross-env SKIP_POSTINSTALL=1",
+    "poston": "cross-env SKIP_POSTINSTALL=0",
+    "deploy": "cross-env SKIP_POSTINSTALL=0 powershell ./deploy.ps1"
   },
   "keywords": [],
   "author": {
@@ -59,6 +62,7 @@
     "@vue/cli-service": "^4.5.6",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^4.3.0",
     "deepmerge": "^4.2.2",
     "dotenv": "^8.2.0",
@@ -71,6 +75,7 @@
     "node-loader": "^0.6.0",
     "sass": "^1.26.11",
     "sass-loader": "^10.0.2",
+    "skip-postinstall": "^1.0.0",
     "style-loader": "^0.23.1",
     "url-loader": "^4.1.0",
     "vue-cli-plugin-electron-builder": "~2.0.0-rc.4",
