@@ -13,7 +13,7 @@ function checkDbTables(db) {
   const metaTypes =
     'CREATE TABLE IF NOT EXISTS metaTypes (id INTEGER PRIMARY KEY UNIQUE NOT NULL, [group] STRING, name STRING);';
   const metaSource =
-    'CREATE TABLE IF NOT EXISTS metaSource (id INTEGER PRIMARY KEY UNIQUE NOT NULL, type STRING, name STRING, size INTEGER, t_created INTEGER, t_modified INTEGER, t_parsed INTEGER);';
+    'CREATE TABLE IF NOT EXISTS metaSource (id INTEGER PRIMARY KEY UNIQUE NOT NULL, type STRING, name STRING, size INTEGER, hash STRING);';
   const metaJobs =
     'CREATE TABLE IF NOT EXISTS metaJobs (id INTEGER PRIMARY KEY UNIQUE NOT NULL, country STRING, client_group STRING, client STRING, product_group STRING, product STRING, metaPrintTypes STRING REFERENCES metaPrintTypes (id) ON DELETE RESTRICT ON UPDATE CASCADE, UNIQUE(client, product_group, product));';
   const days =
@@ -25,7 +25,7 @@ function checkDbTables(db) {
   const jobsAtomic =
     'CREATE TABLE IF NOT EXISTS jobsAtomic (id INTEGER UNIQUE ON CONFLICT IGNORE NOT NULL ON CONFLICT IGNORE PRIMARY KEY ON CONFLICT IGNORE, jobs INTEGER REFERENCES jobs (id) ON DELETE CASCADE ON UPDATE CASCADE, hour INTEGER, minute INTEGER, second INTEGER, duration INTEGER, d_type INTEGER NOT NULL DEFAULT (0), timestamp1 INTEGER, timestamp2 INTEGER, name STRING, UNIQUE(jobs, timestamp1, timestamp2, name));';
   const helperClaro =
-    'CREATE TABLE IF NOT EXISTS helperClaro (id INTEGER PRIMARY KEY NOT NULL UNIQUE, type INTEGER, timestamp INTEGER, days INTEGER REFERENCES days (id) ON DELETE CASCADE ON UPDATE CASCADE, filename STRING, channel STRING, metaUsers INTEGER REFERENCES metaUsers (id) ON DELETE RESTRICT ON UPDATE CASCADE, pstime INTEGER, calctime INTEGER, processed BOOLEAN, UNIQUE(timestamp, filename, channel))';
+    'CREATE TABLE IF NOT EXISTS helperClaro (id INTEGER PRIMARY KEY NOT NULL UNIQUE, type INTEGER, timestamp INTEGER, days INTEGER REFERENCES days (id) ON DELETE CASCADE ON UPDATE CASCADE, filename STRING, channel STRING, metaUsers INTEGER REFERENCES metaUsers (id) ON DELETE RESTRICT ON UPDATE CASCADE, pstime INTEGER, calctime INTEGER, processed BOOLEAN, metaSource INTEGER REFERENCES metaSource (id) ON DELETE CASCADE ON UPDATE CASCADE, UNIQUE(timestamp, filename, channel))';
 
   const table_check_order = [
     metaPrintTypes,

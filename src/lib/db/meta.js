@@ -55,9 +55,7 @@ function getMeta(db) {
         group: el.group,
         name: el.name,
         size: el.size,
-        t_created: el.t_created,
-        t_modified: el.t_modified,
-        t_parsed: el.t_parsed,
+        hash: el.hash,
       };
     });
     return { rev, all };

@@ -1,4 +1,6 @@
 const fs = require('fs').promises;
+const { createReadStream } = require('fs');
+const crypto = require('crypto');
 const path = require('path');
 const fileGroup = {
   dti: /Slike.+_\d{4}(?:-\d{2}){5}\.xlsx?/,
@@ -16,9 +18,7 @@ function trimFile(file) {
     path: file.path,
     name: file.name,
     size: file.size,
-    t_created: file.t_created,
-    t_modified: file.t_modified,
-    t_parsed: file.t_parsed,
+    hash: file.hash,
   };
 }
 
@@ -26,6 +26,14 @@ function addOutput(output, type, group, object) {
   if (!output[type][group]) output[type][group] = [];
   output[type][group].push(object);
 }
+
+const createHashFromFile = (filePath) =>
+  new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha1');
+    createReadStream(filePath)
+      .on('data', (data) => hash.update(data))
+      .on('end', () => resolve(hash.digest('hex')));
+  });
 
 async function getFiles(dir, validGroup, originDir = dir) {
   if (!validGroup) return false;
@@ -41,6 +49,7 @@ async function getFiles(dir, validGroup, originDir = dir) {
     files.map(async (file) => {
       const filePath = path.join(dir, file);
       const stats = await fs.stat(filePath);
+
       if (stats.isDirectory()) {
         return getFiles(filePath, validGroup, originDir);
       } else if (stats.isFile()) {
@@ -58,14 +67,14 @@ async function getFiles(dir, validGroup, originDir = dir) {
 
         if (isValid) {
           const uniqueName = filePath.replace(originDir, '.');
+          const hash = await createHashFromFile(filePath);
+
           return {
             path: filePath,
             group: isValid,
             name: uniqueName,
             size: stats.size,
-            t_created: stats.birthtimeMs,
-            t_modified: stats.birthtimeMs,
-            t_parsed: new Date().getTime(),
+            hash,
           };
         } else {
           return false;
@@ -91,15 +100,11 @@ async function main(dir, meta) {
       // TODO - report this is a new file
       addOutput(output, 'new', r.group, trimFile(r));
     } else {
-      if (
-        meta.source.all[id].size >= r.size &&
-        meta.source.all[id].t_created >= r.t_created &&
-        meta.source.all[id].t_modified >= r.t_modified
-      ) {
-        // TODO - report we have seen this file, but older version
+      if (meta.source.all[id].hash === r.hash) {
+        // Already processed file! - ignore!
         addOutput(output, 'all', r.group, trimFile(r));
       } else {
-        // TODO - report this is a new file version
+        // We have seen this file, but it has changed!
         addOutput(output, 'new', r.group, trimFile(r));
       }
     }

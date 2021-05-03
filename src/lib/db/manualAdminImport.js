@@ -465,9 +465,7 @@ async function mainParser(meta, db) {
           {
             name: 'google/administracija',
             size: outputSize,
-            t_created: outputDate,
-            t_modified: outputDate,
-            t_parsed: outputDate,
+            hash: new Date().getTime(),
           },
           'administracija',
           meta,

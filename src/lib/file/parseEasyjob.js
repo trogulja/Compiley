@@ -13,9 +13,7 @@ async function parseEasyjob(file, meta, db) {
    * file == {
    *   name: '.\\test\\Slike 24_2018-01-01-09-05-13.xls',
    *   size: 10752,
-   *   t_created: 1601152576391.5225,
-   *   t_modified: 1601152576391.5225,
-   *   t_parsed: 1601313389239
+   *   hash: '123123123123',
    * }
    */
   // Check for existing source, drop it from db if found!

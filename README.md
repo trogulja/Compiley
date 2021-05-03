@@ -1,6 +1,13 @@
 # Compiley
 Compile data from multiple sources to produce work report
 
+# FIXUP
+- [ ] sources / files
+  - [ ] checksum field in db
+  - [ ] calculate checksum from files
+  - [ ] api checksum intake
+- [ ] clarohelper table add sources link
+
 # Parsers
 - [x] getMeta - get known tables
   - [x] metaUsers(source): { source: id } mapping

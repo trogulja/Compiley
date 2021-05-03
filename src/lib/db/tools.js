@@ -65,19 +65,16 @@ function handleSource(file, group, meta, db) {
    *       type: 'file',
    *       name: '.\\test\\Slike 24_2018-01-01-09-05-13.xls',
    *       size: 10752,
-   *       t_created: 1601152576391.5225,
-   *       t_modified: 1601152576391.5225,
-   *       t_parsed: 1601313389239
+   *       hash: '123123123123213'
    *     }
    *   }
    * }
    *
    * file = {
+   *   path: 'C:\\Users\\tibor\\code\\Apps\\Compiley\\data\\2018\\01\\24sata\\Slike 24_2018-01-01-09-05-13.xls',
    *   name: '.\\test\\Slike 24_2018-01-01-09-05-13.xls',
    *   size: 10752,
-   *   t_created: 1601887270691.1484,
-   *   t_modified: 1601887270691.1484,
-   *   t_parsed: 1602069907561
+   *   hash: '123123123123123'
    * },
    */
   let id = meta.source.rev[file.name];
@@ -87,16 +84,15 @@ function handleSource(file, group, meta, db) {
     delete meta.source.rev[file.name];
   }
 
+  const dbData = { type: 'file', name: file.name, size: file.size, hash: file.hash };
   const info = db
-    .prepare(
-      'INSERT INTO metaSource (type, name, size, t_created, t_modified, t_parsed) VALUES (@type, @name, @size, @t_created, @t_modified, @t_parsed)'
-    )
-    .run({ type: 'file', ...file });
+    .prepare('INSERT INTO metaSource (type, name, size, hash) VALUES (@type, @name, @size, @hash)')
+    .run(dbData);
 
   if (info.changes !== 1) return false;
 
   meta.source.rev[file.name] = info.lastInsertRowid;
-  setWith(meta.source.all, `[${info.lastInsertRowid}]`, { type: 'file', ...file }, Object);
+  setWith(meta.source.all, `[${info.lastInsertRowid}]`, dbData, Object);
 
   return info.lastInsertRowid;
 }

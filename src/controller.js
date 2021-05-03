@@ -46,6 +46,9 @@ async function gatherFiles(meta, db) {
   }
   notifier.emit('ok', `Found ${totalFiles} new files and ${ignoredFiles} already processed files.`);
 
+  // console.log(files.new);
+  // process.exit();
+
   for (const group in files.new) {
     for (const file of files.new[group]) {
       // console.log(`Parsing file ${file.name} of group ${group}`);
