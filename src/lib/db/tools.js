@@ -76,7 +76,19 @@ function handleSource(file, group, meta, db) {
    *   size: 10752,
    *   hash: '123123123123123'
    * },
+   *
+   * group: dti | parte | worktime | easyjob | administracija
    */
+  const types = {
+    dti: 'file',
+    parte: 'file',
+    worktime: 'file',
+    easyjob: 'file',
+    administracija: 'api',
+    claro: 'api',
+  };
+  const type = types[group] || 'file';
+
   let id = meta.source.rev[file.name];
   if (id) {
     db.prepare('DELETE FROM metaSource WHERE id = ?').run(id);
@@ -84,7 +96,7 @@ function handleSource(file, group, meta, db) {
     delete meta.source.rev[file.name];
   }
 
-  const dbData = { type: 'file', name: file.name, size: file.size, hash: file.hash };
+  const dbData = { type, name: file.name, size: file.size, hash: file.hash };
   const info = db
     .prepare('INSERT INTO metaSource (type, name, size, hash) VALUES (@type, @name, @size, @hash)')
     .run(dbData);

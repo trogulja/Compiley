@@ -19,7 +19,7 @@ const parseEasyjob = require('./lib/file/parseEasyjob');
 const parseWorktime = require('./lib/file/parseWorktime');
 const parseParte = require('./lib/file/parseParte');
 const parseAdmin = require('./lib/db/manualAdminImport');
-const parseClaro = require('./lib/db/manualClaroImport');
+const parseClaro = require('./lib/db/getClaro');
 const dbPostImportHouseKeeping = require('./lib/db/postImportHouseKeeping');
 const path = require('path');
 const fs = require('fs');
@@ -81,7 +81,7 @@ async function gatherAll() {
   notifier.emit('job', 100);
 
   notifier.emit('ok', 'Getting data from claro database.');
-  parseClaro(meta, db);
+  await parseClaro(meta, db);
 
   notifier.emit('ok', 'Getting administration data from google sheets.');
   await parseAdmin(meta, db);
