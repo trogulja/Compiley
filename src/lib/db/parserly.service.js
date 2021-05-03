@@ -1,7 +1,8 @@
 const axios = require('axios');
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8125/api/compiley',
+  // baseURL: 'http://localhost:8125/api/compiley',
+  baseURL: 'http://srvczg-pamendo:8125/api/compiley',
 });
 
 class ParserlyAPI {
