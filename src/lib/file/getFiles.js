@@ -9,6 +9,7 @@ const fileGroup = {
   easyjob: /EasyJob_(?:\d{4}|\d+mj).xlsx?/,
   worktime: /(?:Dnevni |m4 )*izvje[sš]taj (?:m4 )?\d{1,2} \d{4}(?:_time)?.xlsx?/i,
   admin: /Neki regex za admin/,
+  storyeditor: /Slike_Storyeditor.+\.xlsx?/i,
 };
 const tmpFile = /~\$.+\.xls/i;
 const notifier = require('../util/notifier');

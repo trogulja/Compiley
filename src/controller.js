@@ -18,6 +18,7 @@ const parseDTI = require('./lib/file/parseDTI');
 const parseEasyjob = require('./lib/file/parseEasyjob');
 const parseWorktime = require('./lib/file/parseWorktime');
 const parseParte = require('./lib/file/parseParte');
+const parseStoryeditor = require('./lib/file/parseStoryeditor');
 const parseAdmin = require('./lib/db/manualAdminImport');
 const parseClaro = require('./lib/db/getClaro');
 const dbPostImportHouseKeeping = require('./lib/db/postImportHouseKeeping');
@@ -57,6 +58,7 @@ async function gatherFiles(meta, db) {
       if (group === 'easyjob') await parseEasyjob(file, meta, db);
       if (group === 'worktime') await parseWorktime(file, meta, db);
       if (group === 'parte') await parseParte(file, meta, db);
+      if (group === 'storyeditor') await parseStoryeditor(file, meta, db);
 
       currentFile += 1;
       percentageDone = Math.floor((currentFile / totalFiles) * 100);

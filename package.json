@@ -1,7 +1,7 @@
 {
   "name": "compiley",
   "productName": "Compiley",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Compile data from multiple sources to produce work report!",
   "repository": {
     "type": "git",
