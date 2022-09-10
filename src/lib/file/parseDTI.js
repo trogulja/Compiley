@@ -79,8 +79,9 @@ async function parseDTI(file, meta, db) {
     if (!row.fileHeaderName) row.fileHeaderName = 'nema imena';
     row.fileHeaderName = eh.sanitizeString(row.fileHeaderName);
     index += 1;
+    row.refreshedBy = row.refreshedBy ? (meta.users.dti[row.refreshedBy] || 'xx_' + row.refreshedBy) : null;
     // row.refreshedBy = meta.users.dti[row.refreshedBy] || 'xx_' + row.refreshedBy;
-    row.refreshedBy = meta.users.dti[row.refreshedBy] || null;
+    // row.refreshedBy = meta.users.dti[row.refreshedBy] || null;
 
     // ignore unknown user
     if (!row.refreshedBy) continue;
