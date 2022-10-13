@@ -468,7 +468,7 @@ function main() {
     return false;
   }
 
-  checkDbTableContent(db);
+  // checkDbTableContent(db);
 
   return db;
 }
